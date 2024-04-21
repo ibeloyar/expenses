@@ -1,0 +1,4 @@
+DB_DRIVER: postgresql
+DB_NAME: database
+DB_USER: username
+DB_PASS: password
