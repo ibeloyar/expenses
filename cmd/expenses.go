@@ -28,7 +28,7 @@ type Config struct {
 func readConfig() Config {
 	config := Config{}
 
-	file, err := os.ReadFile("config.yml")
+	file, err := os.ReadFile("config/config.yml")
 	if err != nil {
 		panic(err)
 	}
