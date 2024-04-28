@@ -17,17 +17,22 @@ type User struct {
 func (s *Storage) GetUser(id int) (*User, error) {
 	const op = "storage.mysql.GetUser"
 
-	stmt, err := s.DB.Prepare("SELECT * FROM users WHERE id = ? LIMIT 1;")
+	rows, err := s.DB.Query("SELECT * FROM users WHERE id = ? LIMIT 1;", id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, NotFoundError
 		}
 	}
 
-	res, err := stmt.Exec(id)
-	fmt.Printf("%v", res)
+	user := new(User)
 
-	return nil, nil
+	for rows.Next() {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Password, &user.Email, &user.Email_confirmed); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return user, nil
 }
 
 func (s *Storage) GetUsers(limit, offset int) ([]User, error) {
