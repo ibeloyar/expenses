@@ -3,9 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
-	"gopkg.in/yaml.v3"
+	"github.com/B-Dmitriy/expenses/internal/config"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -18,31 +17,8 @@ type User struct {
 	Email_confirmed bool
 }
 
-type Config struct {
-	DBDriver string `yaml:"DB_DRIVER"`
-	DBName   string `yaml:"DB_NAME"`
-	DBUser   string `yaml:"DB_USER"`
-	DBPass   string `yaml:"DB_PASS"`
-}
-
-func readConfig() Config {
-	config := Config{}
-
-	file, err := os.ReadFile("config/config.yml")
-	if err != nil {
-		panic(err)
-	}
-
-	err = yaml.Unmarshal(file, &config)
-	if err != nil {
-		panic(err)
-	}
-
-	return config
-}
-
 func main() {
-	config := readConfig()
+	config := config.NewConfig()
 	db, err := sql.Open(config.DBDriver, config.DBUser+":"+config.DBPass+"@/"+config.DBName)
 	if err != nil {
 		panic(err)
@@ -67,4 +43,8 @@ func main() {
 	for _, v := range users {
 		fmt.Printf("User: %v\n", v)
 	}
+	// TODO: implement logger
+	// TODO: implement storage
+	// TODO: implement server
+	// TODO: Run app
 }
