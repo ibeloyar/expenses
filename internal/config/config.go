@@ -1,18 +1,31 @@
 package config
 
 import (
-	"gopkg.in/yaml.v3"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
-const MainConfigPath = "config/config.yml"
+const MainConfigPath = "config/main.yml"
+
+type StorageSettings struct {
+	DBDriver string `yaml:"db_driver"`
+	DBName   string `yaml:"db_name"`
+	DBUser   string `yaml:"db_user"`
+	DBPass   string `yaml:"db_password"`
+}
+
+type HTTPSettings struct {
+	Port        int    `yaml:"port"`
+	Host        string `yaml:"host"`
+	Timeout     string `yaml:"timeout"`
+	IddleTimout string `yaml:"iddle_timeout"`
+}
 
 type Config struct {
-	PORT     int    `yaml:"PORT"`
-	DBDriver string `yaml:"DB_DRIVER"`
-	DBName   string `yaml:"DB_NAME"`
-	DBUser   string `yaml:"DB_USER"`
-	DBPass   string `yaml:"DB_PASS"`
+	ENV        string          `yaml:"env"`
+	HTTPServer HTTPSettings    `yaml:"http_server"`
+	Storage    StorageSettings `yaml:"storage"`
 }
 
 func NewConfig() Config {

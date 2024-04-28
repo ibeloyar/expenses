@@ -1,4 +1,11 @@
-DB_DRIVER: postgresql
-DB_NAME: database
-DB_USER: username
-DB_PASS: password
+env: "development" # "development" | "production" | "test"
+storage:
+  db_driver: postgresql
+  db_name: database
+  db_user: username
+  db_password: password
+http_server:
+  port: 8000
+  host: "localhost"
+  timeout: 5s
+  iddle_timeout: 20s

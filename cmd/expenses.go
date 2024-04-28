@@ -19,7 +19,7 @@ type User struct {
 
 func main() {
 	config := config.NewConfig()
-	db, err := sql.Open(config.DBDriver, config.DBUser+":"+config.DBPass+"@/"+config.DBName)
+	db, err := sql.Open(config.Storage.DBDriver, config.Storage.DBUser+":"+config.Storage.DBPass+"@/"+config.Storage.DBName)
 	if err != nil {
 		panic(err)
 	}
