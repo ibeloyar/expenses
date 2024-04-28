@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"os"
 
 	"github.com/B-Dmitriy/expenses/internal/config"
 	"github.com/B-Dmitriy/expenses/internal/logger"
@@ -10,14 +11,6 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 )
-
-type User struct {
-	ID              int
-	Username        string
-	Password        string
-	Email           string
-	Email_confirmed bool
-}
 
 func main() {
 	config := config.MustLoad()
@@ -28,28 +21,16 @@ func main() {
 	storage, err := mysql.NewMySQLStorage(&config.Storage)
 	if err != nil {
 		logger.Error("database connect error", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
-	rows, err := storage.db.Query("SELECT * FROM users;")
+
+	users, err := storage.GetUsers(5, 2)
 	if err != nil {
-		panic(err)
+		logger.Error(err.Error())
 	}
-	defer rows.Close()
-
-	users := make([]User, 0, 0)
-
-	for rows.Next() {
-		user := new(User)
-		if err := rows.Scan(&user.ID, &user.Username, &user.Password, &user.Email, &user.Email_confirmed); err != nil {
-			panic(err)
-		}
-		users = append(users, *user)
-	}
-
 	for _, v := range users {
 		fmt.Printf("User: %v\n", v)
 	}
-	// TODO: implement logger
-	// TODO: implement storage
 	// TODO: implement server
 	// TODO: Run app
 }
