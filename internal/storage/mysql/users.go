@@ -14,7 +14,7 @@ type User struct {
 	Email_confirmed bool
 }
 
-func (s *Storage) addUser(id int) (*User, error) {
+func (s *Storage) GetUser(id int) (*User, error) {
 	const op = "storage.mysql.GetUser"
 
 	stmt, err := s.DB.Prepare("SELECT * FROM users WHERE id = ? LIMIT 1;")

@@ -31,6 +31,12 @@ func main() {
 	for _, v := range users {
 		fmt.Printf("User: %v\n", v)
 	}
+
+	user, err := storage.GetUser(2)
+	if err != nil {
+		logger.Error(err.Error())
+	}
+	fmt.Printf("User: %v\n", user)
 	// TODO: implement server
 	// TODO: Run app
 }
