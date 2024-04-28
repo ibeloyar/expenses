@@ -2,10 +2,15 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/B-Dmitriy/expenses/internal/config"
 	_ "github.com/go-sql-driver/mysql"
+)
+
+var (
+	NotFoundError = errors.New("mysql: no rows in result set")
 )
 
 type Storage struct {

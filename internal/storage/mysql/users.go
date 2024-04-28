@@ -1,6 +1,10 @@
 package mysql
 
-import "fmt"
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+)
 
 type User struct {
 	ID              int
@@ -8,6 +12,22 @@ type User struct {
 	Password        string
 	Email           string
 	Email_confirmed bool
+}
+
+func (s *Storage) addUser(id int) (*User, error) {
+	const op = "storage.mysql.GetUser"
+
+	stmt, err := s.DB.Prepare("SELECT * FROM users WHERE id = ? LIMIT 1;")
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, NotFoundError
+		}
+	}
+
+	res, err := stmt.Exec(id)
+	fmt.Printf("%v", res)
+
+	return nil, nil
 }
 
 func (s *Storage) GetUsers(limit, offset int) ([]User, error) {
