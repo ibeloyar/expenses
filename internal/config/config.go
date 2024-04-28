@@ -18,8 +18,8 @@ type StorageSettings struct {
 type HTTPSettings struct {
 	Port        int    `yaml:"port"`
 	Host        string `yaml:"host"`
-	Timeout     string `yaml:"timeout"`
-	IddleTimout string `yaml:"iddle_timeout"`
+	Timeout     int    `yaml:"timeout"`
+	IddleTimout int    `yaml:"iddle_timeout"`
 }
 
 type Config struct {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/B-Dmitriy/expenses/internal/logger"
 	"github.com/B-Dmitriy/expenses/internal/storage/mysql"
 
+	muxHTTP "github.com/B-Dmitriy/expenses/internal/server/http"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -24,19 +24,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	users, err := storage.GetUsers(5, 2)
+	httpServer := muxHTTP.NewServer(config.HTTPServer, storage, logger)
+	err = httpServer.ListenAndServe()
 	if err != nil {
 		logger.Error(err.Error())
+		os.Exit(1)
 	}
-	for _, v := range users {
-		fmt.Printf("User: %v\n", v)
-	}
-
-	user, err := storage.GetUser(2)
-	if err != nil {
-		logger.Error(err.Error())
-	}
-	fmt.Printf("User: %v\n", user)
-	// TODO: implement server
-	// TODO: Run app
 }
