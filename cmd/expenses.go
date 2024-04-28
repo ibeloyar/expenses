@@ -1,12 +1,13 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log/slog"
 
 	"github.com/B-Dmitriy/expenses/internal/config"
 	"github.com/B-Dmitriy/expenses/internal/logger"
+	"github.com/B-Dmitriy/expenses/internal/storage/mysql"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -23,12 +24,12 @@ func main() {
 
 	logger := logger.SetupLogger(config.ENV)
 	logger.Info("logger initialized", slog.String("env", config.ENV))
-	db, err := sql.Open(config.Storage.DBDriver, config.Storage.DBUser+":"+config.Storage.DBPass+"@/"+config.Storage.DBName)
-	if err != nil {
-		panic(err)
-	}
 
-	rows, err := db.Query("SELECT * FROM users;")
+	storage, err := mysql.NewMySQLStorage(&config.Storage)
+	if err != nil {
+		logger.Error("database connect error", slog.String("error", err.Error()))
+	}
+	rows, err := storage.db.Query("SELECT * FROM users;")
 	if err != nil {
 		panic(err)
 	}
