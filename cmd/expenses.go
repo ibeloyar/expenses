@@ -3,8 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
-
 	"github.com/B-Dmitriy/expenses/internal/config"
+	"log/slog"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -17,8 +18,33 @@ type User struct {
 	Email_confirmed bool
 }
 
+const (
+	envDev  = "development"
+	envProd = "production"
+)
+
+func setupLogger(env string) *slog.Logger {
+	var logger *slog.Logger
+
+	switch env {
+	case "development":
+		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		}))
+	case "production":
+		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		}))
+	}
+
+	return logger
+}
+
 func main() {
-	config := config.NewConfig()
+	config := config.MustLoad()
+
+	logger := setupLogger(config.ENV)
+	logger.Info("Logger initialized")
 	db, err := sql.Open(config.Storage.DBDriver, config.Storage.DBUser+":"+config.Storage.DBPass+"@/"+config.Storage.DBName)
 	if err != nil {
 		panic(err)

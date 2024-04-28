@@ -28,7 +28,7 @@ type Config struct {
 	Storage    StorageSettings `yaml:"storage"`
 }
 
-func NewConfig() Config {
+func MustLoad() Config {
 	config := Config{}
 
 	file, err := os.ReadFile(MainConfigPath)
