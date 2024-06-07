@@ -8,17 +8,20 @@ import (
 const (
 	envDev  = "development"
 	envProd = "production"
+	envTest = "test"
 )
 
 func SetupLogger(env string) *slog.Logger {
 	var logger *slog.Logger
 
 	switch env {
-	case "development":
+	case envDev:
 		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		}))
-	case "production":
+	case envTest:
+		fallthrough
+	case envProd:
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelInfo,
 		}))
