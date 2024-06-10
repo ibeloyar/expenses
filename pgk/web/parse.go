@@ -1,9 +1,14 @@
 package web
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
+)
+
+var (
+	ErrIDMustBeenPosInt = errors.New("id must been positive integer")
 )
 
 // ParseQueryParams return map containing query params with keys from names slice and error
@@ -31,7 +36,7 @@ func ParseIDFromURL(r *http.Request, name string) (int, error) {
 
 	param, err := strconv.Atoi(idFromURL)
 	if err != nil || param < 1 {
-		return 0, err
+		return 0, ErrIDMustBeenPosInt
 	}
 
 	return param, nil

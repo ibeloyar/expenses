@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/B-Dmitriy/expenses/internal/config"
+	"github.com/jackc/pgx/v5"
 )
 
 type HTTPServer struct {
@@ -16,11 +16,11 @@ type HTTPServer struct {
 	logger *slog.Logger
 }
 
-func NewServer(cfg config.HTTPSettings, logger *slog.Logger) *HTTPServer {
+func NewServer(cfg config.HTTPSettings, logger *slog.Logger, db *pgx.Conn) *HTTPServer {
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	r := http.NewServeMux()
 
-	handler := initRoutes(r)
+	handler := initRoutes(r, logger, db)
 
 	return &HTTPServer{
 		server: &http.Server{
@@ -33,12 +33,12 @@ func NewServer(cfg config.HTTPSettings, logger *slog.Logger) *HTTPServer {
 	}
 }
 
-func (s *HTTPServer) Run() {
+func (s *HTTPServer) Run() error {
 	if err := s.server.ListenAndServe(); err != nil {
 		s.logger.Error(fmt.Sprintf("start server error: %v", err))
-		os.Exit(1)
-		return
+		return err
 	}
+	return nil
 }
 
 func (s *HTTPServer) Stop() error {
