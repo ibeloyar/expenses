@@ -1,37 +1,25 @@
 package http
 
 import (
-	"github.com/B-Dmitriy/expenses/pgk/web"
+	"log/slog"
 	"net/http"
+
+	"github.com/B-Dmitriy/expenses/internal/services/users"
+	"github.com/jackc/pgx/v5"
+
+	usersDB "github.com/B-Dmitriy/expenses/internal/storage/users"
 )
 
-func initRoutes(serv *http.ServeMux) *http.ServeMux {
-	serv.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		web.WriteOK(w, "ping")
-	})
-	serv.HandleFunc("GET /json", func(w http.ResponseWriter, r *http.Request) {
-		web.WriteOK(w, "{\"json\": \"data\"}")
-	})
-	serv.HandleFunc("GET /nil", func(w http.ResponseWriter, r *http.Request) {
-		web.WriteOK(w, nil)
-	})
-	// /query?first=1&second=none&third=test
-	serv.HandleFunc("GET /query", func(w http.ResponseWriter, r *http.Request) {
-		params, _ := web.ParseQueryParams(r, "first", "third")
+func initRoutes(serv *http.ServeMux, l *slog.Logger, db *pgx.Conn) *http.ServeMux {
+	usersStore := usersDB.NewUsersStorage(db)
 
-		web.WriteOK(w, params)
-	})
-	serv.HandleFunc("GET /user/{id}", func(w http.ResponseWriter, r *http.Request) {
+	usersService := users.NewUsersService(l, usersStore)
 
-		id, _ := web.ParseIDFromURL(r, "id")
+	serv.HandleFunc("GET /api/v1/users", usersService.GetUsersList)
+	serv.HandleFunc("POST /api/v1/users", usersService.CreateUser)
+	serv.HandleFunc("GET /api/v1/users/{userID}", usersService.GetUser)
+	serv.HandleFunc("PUT /api/v1/users/{userID}", usersService.EditUserInfo)
+	serv.HandleFunc("DELETE /api/v1/users/{userID}", usersService.DeleteUser)
 
-		resp := struct {
-			ID int `json:"id"`
-		}{
-			ID: id,
-		}
-
-		web.WriteOK(w, resp)
-	})
 	return serv
 }

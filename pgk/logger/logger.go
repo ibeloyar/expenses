@@ -11,7 +11,7 @@ const (
 	envTest = "test"
 )
 
-func SetupLogger(env string) *slog.Logger {
+func NewLogger(env string) *slog.Logger {
 	var logger *slog.Logger
 
 	switch env {

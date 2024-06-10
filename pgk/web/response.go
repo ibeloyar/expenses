@@ -33,6 +33,21 @@ func WriteCreated(w http.ResponseWriter, data any) {
 	}
 }
 
+// WriteNoContent send on client response with status code 204 and data
+// if data == nil, will send response without body
+// used for delete response
+func WriteNoContent(w http.ResponseWriter, data any) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+
+	if data != nil {
+		err := json.NewEncoder(w).Encode(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
 // WriteUnauthorized send on client response with status code 401 and error text
 func WriteUnauthorized(w http.ResponseWriter, e error) {
 	w.Header().Add("Content-Type", "application/json")

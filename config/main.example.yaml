@@ -1,11 +1,13 @@
 env: "development" # "development" | "production" | "test"
 storage:
-  db_driver: postgresql
+  db_driver: mysql
   db_name: database
   db_user: username
   db_password: password
+  db_host: localhost
+  db_port: 3301
 http_server:
-  port: 8000
-  host: "localhost"
-  timeout: 5s
-  iddle_timeout: 20s
+  port: 8080
+  host: "0.0.0.0"
+  timeout: 5
+  iddle_timeout: 20

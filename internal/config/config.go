@@ -13,6 +13,8 @@ type StorageSettings struct {
 	DBName   string `yaml:"db_name"`
 	DBUser   string `yaml:"db_user"`
 	DBPass   string `yaml:"db_password"`
+	DBHost   string `yaml:"db_host"`
+	DBPort   string `yaml:"db_port"`
 }
 
 type HTTPSettings struct {
