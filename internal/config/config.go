@@ -1,9 +1,8 @@
 package config
 
 import (
-	"os"
-
 	"gopkg.in/yaml.v3"
+	"os"
 )
 
 const MainConfigPath = "config/main.yaml"
@@ -18,16 +17,24 @@ type StorageSettings struct {
 }
 
 type HTTPSettings struct {
-	Port        int    `yaml:"port"`
-	Host        string `yaml:"host"`
-	Timeout     int    `yaml:"timeout"`
-	IddleTimout int    `yaml:"iddle_timeout"`
+	Port            int    `yaml:"port"`
+	Host            string `yaml:"host"`
+	Timeout         int    `yaml:"timeout"`
+	IddleTimout     int    `yaml:"iddle_timeout"`
+	ShutdownTimeout int    `yaml:"shutdown_timeout"`
 }
 
 type Config struct {
-	ENV        string          `yaml:"env"`
-	HTTPServer HTTPSettings    `yaml:"http_server"`
-	Storage    StorageSettings `yaml:"storage"`
+	ENV        string           `yaml:"env"`
+	HTTPServer HTTPSettings     `yaml:"http_server"`
+	Storage    StorageSettings  `yaml:"storage"`
+	Security   SecuritySettings `yaml:"security"`
+}
+
+type SecuritySettings struct {
+	PassCost         int    `yaml:"pass_cost"`
+	JWTSecret        string `yaml:"jwt_secret"`
+	JWTRefreshSecret string `yaml:"jwt_refresh_secret"`
 }
 
 func MustLoad() Config {

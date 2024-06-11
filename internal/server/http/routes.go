@@ -5,15 +5,21 @@ import (
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/internal/services/users"
+	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/jackc/pgx/v5"
 
 	usersDB "github.com/B-Dmitriy/expenses/internal/storage/users"
 )
 
-func initRoutes(serv *http.ServeMux, l *slog.Logger, db *pgx.Conn) *http.ServeMux {
+func initRoutes(
+	serv *http.ServeMux,
+	l *slog.Logger,
+	db *pgx.Conn,
+	pm *password.PasswordManager,
+) *http.ServeMux {
 	usersStore := usersDB.NewUsersStorage(db)
 
-	usersService := users.NewUsersService(l, usersStore)
+	usersService := users.NewUsersService(l, usersStore, pm)
 
 	serv.HandleFunc("GET /api/v1/users", usersService.GetUsersList)
 	serv.HandleFunc("POST /api/v1/users", usersService.CreateUser)

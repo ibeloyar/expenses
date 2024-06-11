@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/internal/model"
+	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/web"
 	"github.com/jackc/pgx/v5"
 
@@ -15,21 +16,27 @@ import (
 )
 
 type UsersService struct {
-	logger *slog.Logger
-	store  *storage.UsersStorage
+	logger      *slog.Logger
+	store       *storage.UsersStorage
+	passManager *password.PasswordManager
 }
 
-func NewUsersService(l *slog.Logger, s *storage.UsersStorage) *UsersService {
+func NewUsersService(
+	l *slog.Logger,
+	s *storage.UsersStorage,
+	pm *password.PasswordManager,
+) *UsersService {
 	return &UsersService{
-		logger: l,
-		store:  s,
+		logger:      l,
+		store:       s,
+		passManager: pm,
 	}
 }
 
 func (us *UsersService) GetUsersList(w http.ResponseWriter, r *http.Request) {
-	users, err := us.store.GetList()
+	users, err := us.store.GetUsersList()
 	if err != nil {
-		us.logger.Error("error message with logs")
+		us.logger.Error(err.Error())
 		web.WriteServerError(w)
 		return
 	}
@@ -73,7 +80,14 @@ func (us *UsersService) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = us.store.CreateUser(body)
+	passHash, err := us.passManager.HashPassword(body.Password)
+	if err != nil {
+		us.logger.Error(err.Error())
+		web.WriteServerError(w)
+		return
+	}
+
+	err = us.store.CreateUser(replacePasswordOnHash(body, passHash))
 	if err != nil {
 		us.logger.Error(err.Error())
 		web.WriteServerError(w)
@@ -141,4 +155,12 @@ func (us *UsersService) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	web.WriteNoContent(w, nil)
+}
+
+func replacePasswordOnHash(user *model.CreateUserBody, hash string) *model.CreateUserBody {
+	return &model.CreateUserBody{
+		Login:    user.Login,
+		Email:    user.Email,
+		Password: hash,
+	}
 }

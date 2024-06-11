@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"errors"
+
 	"github.com/B-Dmitriy/expenses/internal/model"
 	"github.com/jackc/pgx/v5"
 )
@@ -25,8 +26,8 @@ func NewUsersStorage(db *pgx.Conn) *UsersStorage {
 	}
 }
 
-func (s *UsersStorage) GetList() ([]model.User, error) {
-	users := make([]model.User, 0)
+func (s *UsersStorage) GetUsersList() ([]*model.UserInfo, error) {
+	users := make([]*model.UserInfo, 0)
 	rows, err := s.db.Query(context.Background(), "SELECT * FROM users;")
 	if err != nil {
 		return nil, err
@@ -49,13 +50,13 @@ func (s *UsersStorage) GetList() ([]model.User, error) {
 			return nil, err
 		}
 
-		users = append(users, user)
+		users = append(users, convertUserToUserInfo(&user))
 	}
 
 	return users, nil
 }
 
-func (s *UsersStorage) GetUser(id int) (*model.User, error) {
+func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 	user := new(model.User)
 
 	stmt, err := s.db.Prepare(context.Background(), "getUser", "SELECT * FROM users WHERE id = $1;")
@@ -77,7 +78,7 @@ func (s *UsersStorage) GetUser(id int) (*model.User, error) {
 		return nil, err
 	}
 
-	return user, nil
+	return convertUserToUserInfo(user), nil
 }
 
 func (s *UsersStorage) CreateUser(body *model.CreateUserBody) error {
@@ -122,4 +123,16 @@ func (s *UsersStorage) DeleteUser(id int) error {
 	}
 
 	return nil
+}
+
+func convertUserToUserInfo(user *model.User) *model.UserInfo {
+	return &model.UserInfo{
+		ID:             user.ID,
+		Login:          user.Login,
+		Email:          user.Email,
+		EmailConfirmed: user.EmailConfirmed,
+		RoleID:         user.RoleID,
+		CreatedAt:      user.CreatedAt,
+		UpdatedAt:      user.UpdatedAt,
+	}
 }

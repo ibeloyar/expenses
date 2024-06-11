@@ -59,6 +59,6 @@ func NewStorage(settings config.StorageSettings) (*PGStorage, error) {
 	}, nil
 }
 
-func (s *PGStorage) CloseConnection() error {
-	return s.Conn.Close(context.Background())
+func (s *PGStorage) CloseConnection(ctx context.Context) error {
+	return s.Conn.Close(ctx)
 }

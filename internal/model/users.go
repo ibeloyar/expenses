@@ -13,6 +13,16 @@ type User struct {
 	UpdatedAt      *time.Time `json:"updatedAt"`
 }
 
+type UserInfo struct {
+	ID             int        `json:"id"`
+	Login          string     `json:"login"`
+	Email          string     `json:"email"`
+	EmailConfirmed bool       `json:"emailConfirmed"`
+	RoleID         int        `json:"roleID"`
+	CreatedAt      *time.Time `json:"createdAt"`
+	UpdatedAt      *time.Time `json:"updatedAt"`
+}
+
 type CreateUserBody struct {
 	Login    string `json:"login"`
 	Email    string `json:"email"`
