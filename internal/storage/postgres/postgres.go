@@ -1,8 +1,9 @@
-package storage
+package postgres
 
 import (
 	"context"
 	"fmt"
+
 	"github.com/B-Dmitriy/expenses/internal/config"
 	"github.com/jackc/pgx/v5"
 	//"github.com/golang-migrate/migrate/v5"
@@ -36,7 +37,8 @@ import (
 //}
 
 type PGStorage struct {
-	Conn *pgx.Conn
+	Conn  *pgx.Conn
+	Utils *PGUtils
 }
 
 func NewStorage(settings config.StorageSettings) (*PGStorage, error) {
@@ -55,10 +57,11 @@ func NewStorage(settings config.StorageSettings) (*PGStorage, error) {
 	}
 
 	return &PGStorage{
-		Conn: conn,
+		Conn:  conn,
+		Utils: &PGUtils{},
 	}, nil
 }
 
-func (s *PGStorage) CloseConnection() error {
-	return s.Conn.Close(context.Background())
+func (s *PGStorage) CloseConnection(ctx context.Context) error {
+	return s.Conn.Close(ctx)
 }

@@ -5,15 +5,25 @@ import (
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/internal/services/users"
-	"github.com/jackc/pgx/v5"
+	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
+	"github.com/B-Dmitriy/expenses/pgk/password"
+	"github.com/go-playground/validator/v10"
 
-	usersDB "github.com/B-Dmitriy/expenses/internal/storage/users"
+	usersDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/users"
 )
 
-func initRoutes(serv *http.ServeMux, l *slog.Logger, db *pgx.Conn) *http.ServeMux {
+func initRoutes(
+	serv *http.ServeMux,
+	logger *slog.Logger,
+	db *postgres.PGStorage,
+	pm *password.PasswordManager,
+) *http.ServeMux {
+	v := validator.New()
+	utils := postgres.NewPGUtils()
+
 	usersStore := usersDB.NewUsersStorage(db)
 
-	usersService := users.NewUsersService(l, usersStore)
+	usersService := users.NewUsersService(logger, usersStore, v, utils, pm)
 
 	serv.HandleFunc("GET /api/v1/users", usersService.GetUsersList)
 	serv.HandleFunc("POST /api/v1/users", usersService.CreateUser)

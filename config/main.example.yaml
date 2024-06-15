@@ -11,3 +11,8 @@ http_server:
   host: "0.0.0.0"
   timeout: 5
   iddle_timeout: 20
+  shutdown_timeout: 5
+security:
+  pass_cost: 3
+  jwt_secret: 'secret'
+  jwt_refresh_secret: 'secret'
