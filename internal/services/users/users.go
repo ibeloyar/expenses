@@ -12,29 +12,30 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/web"
 	"github.com/jackc/pgx/v5"
-
-	us "github.com/B-Dmitriy/expenses/internal/storage/users"
 )
 
-type UsersService struct {
+type UsersPGService struct {
 	logger      *slog.Logger
-	store       *us.UsersStorage
+	store       storage.UsersStore
+	pgUtils     storage.PGServiceUtils
 	passManager *password.PasswordManager
 }
 
 func NewUsersService(
 	l *slog.Logger,
-	us *us.UsersStorage,
+	us storage.UsersStore,
+	pgu storage.PGServiceUtils,
 	pm *password.PasswordManager,
-) *UsersService {
-	return &UsersService{
+) *UsersPGService {
+	return &UsersPGService{
 		logger:      l,
 		store:       us,
+		pgUtils:     pgu,
 		passManager: pm,
 	}
 }
 
-func (us *UsersService) GetUsersList(w http.ResponseWriter, r *http.Request) {
+func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUsersList")
 
 	p, err := web.ParseQueryPagination(r, &web.Pagination{Page: 1, Limit: 25})
@@ -58,7 +59,7 @@ func (us *UsersService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 	web.WriteOK(w, users)
 }
 
-func (us *UsersService) GetUser(w http.ResponseWriter, r *http.Request) {
+func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
@@ -82,7 +83,7 @@ func (us *UsersService) GetUser(w http.ResponseWriter, r *http.Request) {
 	web.WriteOK(w, user)
 }
 
-func (us *UsersService) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 	body := new(model.CreateUserBody)
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -103,7 +104,7 @@ func (us *UsersService) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = us.store.CreateUser(replacePasswordOnHash(body, passHash))
 	if err != nil {
-		if isConstrain, e := us.store.CheckConstrainErr(err); isConstrain {
+		if isConstrain, e := us.pgUtils.CheckPGConstrainError(err); isConstrain {
 			web.WriteBadRequest(w, e)
 			return
 		}
@@ -114,7 +115,7 @@ func (us *UsersService) CreateUser(w http.ResponseWriter, r *http.Request) {
 	web.WriteOK(w, nil)
 }
 
-func (us *UsersService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
+func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
@@ -138,7 +139,7 @@ func (us *UsersService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 			web.WriteNotFound(w, fmt.Errorf("user %d not found", userID))
 			return
 		}
-		if isConstrain, err := us.store.CheckConstrainErr(err); isConstrain {
+		if isConstrain, err := us.pgUtils.CheckPGConstrainError(err); isConstrain {
 			web.WriteBadRequest(w, err)
 			return
 		}
@@ -149,7 +150,7 @@ func (us *UsersService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 	web.WriteOK(w, nil)
 }
 
-func (us *UsersService) DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (us *UsersPGService) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {

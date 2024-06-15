@@ -17,9 +17,10 @@ func initRoutes(
 	db *storage.PGStorage,
 	pm *password.PasswordManager,
 ) *http.ServeMux {
+	pgServiceUtils := storage.NewPGServiceUtils()
 	usersStore := usersDB.NewUsersStorage(db)
 
-	usersService := users.NewUsersService(l, usersStore, pm)
+	usersService := users.NewUsersService(l, usersStore, pgServiceUtils, pm)
 
 	serv.HandleFunc("GET /api/v1/users", usersService.GetUsersList)
 	serv.HandleFunc("POST /api/v1/users", usersService.CreateUser)

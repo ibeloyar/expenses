@@ -8,14 +8,12 @@ import (
 )
 
 type UsersStorage struct {
-	db                *storage.PGStorage
-	CheckConstrainErr func(e error) (bool, error)
+	db *storage.PGStorage
 }
 
-func NewUsersStorage(db *storage.PGStorage) *UsersStorage {
+func NewUsersStorage(db *storage.PGStorage) storage.UsersStore {
 	return &UsersStorage{
-		db:                db,
-		CheckConstrainErr: db.Utils.CheckPGConstrainError,
+		db: db,
 	}
 }
 

@@ -6,6 +6,14 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+type PGServiceUtils interface {
+	CheckPGConstrainError(e error) (bool, error)
+}
+
+func NewPGServiceUtils() *PGUtils {
+	return &PGUtils{}
+}
+
 type PGUtils struct{}
 
 func (pgu *PGUtils) GetOffset(page, limit int) (int, error) {
