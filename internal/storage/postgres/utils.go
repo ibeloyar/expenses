@@ -1,16 +1,13 @@
-package storage
+package postgres
 
 import (
 	"errors"
 
+	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type ServiceUtils interface {
-	CheckConstrainError(e error) (bool, error)
-}
-
-func NewPGServiceUtils() *PGUtils {
+func NewPGUtils() *PGUtils {
 	return &PGUtils{}
 }
 
@@ -19,11 +16,11 @@ type PGUtils struct{}
 func (pgu *PGUtils) GetOffset(page, limit int) (int, error) {
 	switch {
 	case page < 1:
-		return 0, ErrPageMustBeenGreaterThanOne
+		return 0, storage.ErrPageMustBeenGreaterThanOne
 	case page == 1:
 		return 0, nil
 	case limit < 1:
-		return 0, ErrLimitMustBeenGreaterThanOne
+		return 0, storage.ErrLimitMustBeenGreaterThanOne
 	default:
 		return (page - 1) * limit, nil
 	}
@@ -34,15 +31,15 @@ func (pgu *PGUtils) CheckConstrainError(e error) (bool, error) {
 	if errors.As(e, &pgErr) {
 		switch pgErr.ConstraintName {
 		case "users_unique_login":
-			return true, ErrUsersUniqueLogin
+			return true, storage.ErrUsersUniqueLogin
 		case "users_unique_email":
-			return true, ErrUsersUniqueEmail
+			return true, storage.ErrUsersUniqueEmail
 		case "users_empty_login":
-			return true, ErrUsersEmptyLogin
+			return true, storage.ErrUsersEmptyLogin
 		case "users_empty_email":
-			return true, ErrUsersEmptyEmail
+			return true, storage.ErrUsersEmptyEmail
 		case "users_empty_password":
-			return true, ErrUsersEmptyPassword
+			return true, storage.ErrUsersEmptyPassword
 		default:
 			return false, e
 		}

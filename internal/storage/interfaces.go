@@ -2,6 +2,10 @@ package storage
 
 import "github.com/B-Dmitriy/expenses/internal/model"
 
+type ServiceUtils interface {
+	CheckConstrainError(e error) (bool, error)
+}
+
 type UsersStore interface {
 	GetUsersList(page, limit int, search string) ([]*model.UserInfo, error)
 	GetUser(id int) (*model.UserInfo, error)

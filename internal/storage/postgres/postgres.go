@@ -1,8 +1,9 @@
-package storage
+package postgres
 
 import (
 	"context"
 	"fmt"
+
 	"github.com/B-Dmitriy/expenses/internal/config"
 	"github.com/jackc/pgx/v5"
 	//"github.com/golang-migrate/migrate/v5"

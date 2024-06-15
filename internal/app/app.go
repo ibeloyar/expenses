@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/B-Dmitriy/expenses/internal/config"
-	"github.com/B-Dmitriy/expenses/internal/storage"
+	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/B-Dmitriy/expenses/pgk/logger"
 	"github.com/B-Dmitriy/expenses/pgk/password"
 
@@ -26,7 +26,7 @@ func Run(cfg *config.Config) {
 	pm := password.New(cfg.Security.PassCost)
 	lgr.Info("password manager initialized")
 
-	store, err := storage.NewStorage(cfg.Storage)
+	store, err := postgres.NewStorage(cfg.Storage)
 	if err != nil {
 		lgr.Error(err.Error())
 		os.Exit(1)

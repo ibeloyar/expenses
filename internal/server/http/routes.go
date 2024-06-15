@@ -1,25 +1,25 @@
 package http
 
 import (
-	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/internal/services/users"
-	"github.com/B-Dmitriy/expenses/internal/storage"
+	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/B-Dmitriy/expenses/pgk/password"
+	"github.com/go-playground/validator/v10"
 
-	usersDB "github.com/B-Dmitriy/expenses/internal/storage/users"
+	usersDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/users"
 )
 
 func initRoutes(
 	serv *http.ServeMux,
 	logger *slog.Logger,
-	db *storage.PGStorage,
+	db *postgres.PGStorage,
 	pm *password.PasswordManager,
 ) *http.ServeMux {
 	v := validator.New()
-	utils := storage.NewPGServiceUtils()
+	utils := postgres.NewPGUtils()
 
 	usersStore := usersDB.NewUsersStorage(db)
 

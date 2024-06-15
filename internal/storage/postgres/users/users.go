@@ -5,13 +5,14 @@ import (
 
 	"github.com/B-Dmitriy/expenses/internal/model"
 	"github.com/B-Dmitriy/expenses/internal/storage"
+	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 )
 
 type UsersStorage struct {
-	db *storage.PGStorage
+	db *postgres.PGStorage
 }
 
-func NewUsersStorage(db *storage.PGStorage) storage.UsersStore {
+func NewUsersStorage(db *postgres.PGStorage) storage.UsersStore {
 	return &UsersStorage{
 		db: db,
 	}

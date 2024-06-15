@@ -144,6 +144,13 @@ func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = us.validator.Struct(body)
+	if err != nil {
+		errs := err.(validator.ValidationErrors)
+		web.WriteBadRequest(w, errs)
+		return
+	}
+
 	err = us.store.EditUser(userID, body)
 	if err != nil {
 		if errors.Is(err, storage.ErrNotFound) {
