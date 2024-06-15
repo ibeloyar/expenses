@@ -19,7 +19,7 @@ type UsersPGService struct {
 	logger      *slog.Logger
 	store       storage.UsersStore
 	validator   *validator.Validate
-	pgUtils     storage.PGServiceUtils
+	utils       storage.ServiceUtils
 	passManager *password.PasswordManager
 }
 
@@ -27,14 +27,14 @@ func NewUsersService(
 	l *slog.Logger,
 	us storage.UsersStore,
 	v *validator.Validate,
-	pgu storage.PGServiceUtils,
+	u storage.ServiceUtils,
 	pm *password.PasswordManager,
 ) *UsersPGService {
 	return &UsersPGService{
 		logger:      l,
 		store:       us,
 		validator:   v,
-		pgUtils:     pgu,
+		utils:       u,
 		passManager: pm,
 	}
 }
@@ -115,7 +115,7 @@ func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = us.store.CreateUser(replacePasswordOnHash(body, passHash))
 	if err != nil {
-		if isConstrain, e := us.pgUtils.CheckPGConstrainError(err); isConstrain {
+		if isConstrain, e := us.utils.CheckConstrainError(err); isConstrain {
 			web.WriteBadRequest(w, e)
 			return
 		}
@@ -150,7 +150,7 @@ func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 			web.WriteNotFound(w, fmt.Errorf("user %d not found", userID))
 			return
 		}
-		if isConstrain, err := us.pgUtils.CheckPGConstrainError(err); isConstrain {
+		if isConstrain, err := us.utils.CheckConstrainError(err); isConstrain {
 			web.WriteBadRequest(w, err)
 			return
 		}

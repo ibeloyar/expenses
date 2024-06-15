@@ -6,8 +6,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type PGServiceUtils interface {
-	CheckPGConstrainError(e error) (bool, error)
+type ServiceUtils interface {
+	CheckConstrainError(e error) (bool, error)
 }
 
 func NewPGServiceUtils() *PGUtils {
@@ -29,7 +29,7 @@ func (pgu *PGUtils) GetOffset(page, limit int) (int, error) {
 	}
 }
 
-func (pgu *PGUtils) CheckPGConstrainError(e error) (bool, error) {
+func (pgu *PGUtils) CheckConstrainError(e error) (bool, error) {
 	var pgErr *pgconn.PgError
 	if errors.As(e, &pgErr) {
 		switch pgErr.ConstraintName {
