@@ -11,12 +11,14 @@ import (
 	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/web"
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 )
 
 type UsersPGService struct {
 	logger      *slog.Logger
 	store       storage.UsersStore
+	validator   *validator.Validate
 	pgUtils     storage.PGServiceUtils
 	passManager *password.PasswordManager
 }
@@ -24,12 +26,14 @@ type UsersPGService struct {
 func NewUsersService(
 	l *slog.Logger,
 	us storage.UsersStore,
+	v *validator.Validate,
 	pgu storage.PGServiceUtils,
 	pm *password.PasswordManager,
 ) *UsersPGService {
 	return &UsersPGService{
 		logger:      l,
 		store:       us,
+		validator:   v,
 		pgUtils:     pgu,
 		passManager: pm,
 	}
@@ -89,6 +93,13 @@ func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		web.WriteServerErrorWithSlog(w, us.logger, err)
+		return
+	}
+
+	err = us.validator.Struct(body)
+	if err != nil {
+		errs := err.(validator.ValidationErrors)
+		web.WriteBadRequest(w, errs)
 		return
 	}
 

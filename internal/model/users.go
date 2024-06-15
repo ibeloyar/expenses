@@ -24,18 +24,18 @@ type UserInfo struct {
 }
 
 type CreateUserBody struct {
-	Login    string `json:"login"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Login    string `json:"login" validate:"required,min=2,max=255"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=4,max=20"`
 }
 
 type EditUserBody struct {
-	Login string `json:"login"`
-	Email string `json:"email"`
+	Login string `json:"login" validate:"required,min=2,max=255"`
+	Email string `json:"email" validate:"required,email"`
 }
 
 type EditUserPasswordBody struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	NewPassword string `json:"newPassword"`
+	Email       string `json:"email" validate:"required,email"`
+	Password    string `json:"password" validate:"required,min=4,max=20"`
+	NewPassword string `json:"newPassword" validate:"required,min=4,max=20"`
 }

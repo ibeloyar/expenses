@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
 
@@ -13,14 +14,16 @@ import (
 
 func initRoutes(
 	serv *http.ServeMux,
-	l *slog.Logger,
+	logger *slog.Logger,
 	db *storage.PGStorage,
 	pm *password.PasswordManager,
 ) *http.ServeMux {
-	pgServiceUtils := storage.NewPGServiceUtils()
+	v := validator.New()
+	utils := storage.NewPGServiceUtils()
+
 	usersStore := usersDB.NewUsersStorage(db)
 
-	usersService := users.NewUsersService(l, usersStore, pgServiceUtils, pm)
+	usersService := users.NewUsersService(logger, usersStore, v, utils, pm)
 
 	serv.HandleFunc("GET /api/v1/users", usersService.GetUsersList)
 	serv.HandleFunc("POST /api/v1/users", usersService.CreateUser)
