@@ -2,33 +2,38 @@ package users
 
 import (
 	"context"
-	"errors"
 
 	"github.com/B-Dmitriy/expenses/internal/model"
-	"github.com/jackc/pgx/v5"
-)
-
-const (
-	DefaultUserRoleID = 10
-)
-
-var (
-	ErrNotFound = errors.New("not found")
+	"github.com/B-Dmitriy/expenses/internal/storage"
 )
 
 type UsersStorage struct {
-	db *pgx.Conn
+	db                *storage.PGStorage
+	CheckConstrainErr func(e error) (bool, error)
 }
 
-func NewUsersStorage(db *pgx.Conn) *UsersStorage {
+func NewUsersStorage(db *storage.PGStorage) *UsersStorage {
 	return &UsersStorage{
-		db: db,
+		db:                db,
+		CheckConstrainErr: db.Utils.CheckPGConstrainError,
 	}
 }
 
-func (s *UsersStorage) GetUsersList() ([]*model.UserInfo, error) {
+func (s *UsersStorage) GetUsersList(page, limit int, search string) ([]*model.UserInfo, error) {
 	users := make([]*model.UserInfo, 0)
-	rows, err := s.db.Query(context.Background(), "SELECT * FROM users;")
+
+	offset, err := s.db.Utils.GetOffset(page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := s.db.Conn.Query(context.Background(), `
+		SELECT * FROM users 
+			WHERE LOWER(email) LIKE CONCAT('%', $1::text,'%') 
+			   OR LOWER(login) LIKE CONCAT('%', $1::text,'%')
+		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
+	`, search, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -59,12 +64,12 @@ func (s *UsersStorage) GetUsersList() ([]*model.UserInfo, error) {
 func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 	user := new(model.User)
 
-	stmt, err := s.db.Prepare(context.Background(), "getUser", "SELECT * FROM users WHERE id = $1;")
+	stmt, err := s.db.Conn.Prepare(context.Background(), "getUser", "SELECT * FROM users WHERE id = $1;")
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.db.QueryRow(context.Background(), stmt.SQL, id).Scan(
+	err = s.db.Conn.QueryRow(context.Background(), stmt.SQL, id).Scan(
 		&user.ID,
 		&user.Login,
 		&user.Email,
@@ -82,11 +87,12 @@ func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 }
 
 func (s *UsersStorage) CreateUser(body *model.CreateUserBody) error {
-	_, err := s.db.Exec(context.Background(), "INSERT INTO users (login, email, password, role_id) VALUES ($1, $2, $3, $4);",
+	_, err := s.db.Conn.Exec(context.Background(), `
+		INSERT INTO users (login, email, password) 
+		VALUES ($1, $2, $3);`,
 		body.Login,
 		body.Email,
 		body.Password,
-		DefaultUserRoleID,
 	)
 	if err != nil {
 		return err
@@ -96,7 +102,7 @@ func (s *UsersStorage) CreateUser(body *model.CreateUserBody) error {
 }
 
 func (s *UsersStorage) EditUser(id int, user *model.EditUserBody) error {
-	res, err := s.db.Exec(context.Background(), "UPDATE users SET login=$1,email=$2 WHERE id = $3;",
+	res, err := s.db.Conn.Exec(context.Background(), "UPDATE users SET login=$1,email=$2 WHERE id = $3;",
 		user.Login,
 		user.Email,
 		id,
@@ -106,20 +112,20 @@ func (s *UsersStorage) EditUser(id int, user *model.EditUserBody) error {
 	}
 
 	if res.RowsAffected() == 0 {
-		return ErrNotFound
+		return storage.ErrNotFound
 	}
 
 	return nil
 }
 
 func (s *UsersStorage) DeleteUser(id int) error {
-	res, err := s.db.Exec(context.Background(), "DELETE FROM users WHERE id = $1;", id)
+	res, err := s.db.Conn.Exec(context.Background(), "DELETE FROM users WHERE id = $1;", id)
 	if err != nil {
 		return err
 	}
 
 	if res.RowsAffected() == 0 {
-		return ErrNotFound
+		return storage.ErrNotFound
 	}
 
 	return nil

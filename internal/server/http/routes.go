@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/internal/services/users"
+	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/B-Dmitriy/expenses/pgk/password"
-	"github.com/jackc/pgx/v5"
 
 	usersDB "github.com/B-Dmitriy/expenses/internal/storage/users"
 )
@@ -14,7 +14,7 @@ import (
 func initRoutes(
 	serv *http.ServeMux,
 	l *slog.Logger,
-	db *pgx.Conn,
+	db *storage.PGStorage,
 	pm *password.PasswordManager,
 ) *http.ServeMux {
 	usersStore := usersDB.NewUsersStorage(db)

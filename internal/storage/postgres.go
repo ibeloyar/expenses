@@ -36,7 +36,8 @@ import (
 //}
 
 type PGStorage struct {
-	Conn *pgx.Conn
+	Conn  *pgx.Conn
+	Utils *PGUtils
 }
 
 func NewStorage(settings config.StorageSettings) (*PGStorage, error) {
@@ -55,7 +56,8 @@ func NewStorage(settings config.StorageSettings) (*PGStorage, error) {
 	}
 
 	return &PGStorage{
-		Conn: conn,
+		Conn:  conn,
+		Utils: &PGUtils{},
 	}, nil
 }
 

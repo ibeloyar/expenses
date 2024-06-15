@@ -8,36 +8,50 @@ import (
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/internal/model"
+	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/web"
 	"github.com/jackc/pgx/v5"
 
-	storage "github.com/B-Dmitriy/expenses/internal/storage/users"
+	us "github.com/B-Dmitriy/expenses/internal/storage/users"
 )
 
 type UsersService struct {
 	logger      *slog.Logger
-	store       *storage.UsersStorage
+	store       *us.UsersStorage
 	passManager *password.PasswordManager
 }
 
 func NewUsersService(
 	l *slog.Logger,
-	s *storage.UsersStorage,
+	us *us.UsersStorage,
 	pm *password.PasswordManager,
 ) *UsersService {
 	return &UsersService{
 		logger:      l,
-		store:       s,
+		store:       us,
 		passManager: pm,
 	}
 }
 
 func (us *UsersService) GetUsersList(w http.ResponseWriter, r *http.Request) {
-	users, err := us.store.GetUsersList()
+	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUsersList")
+
+	p, err := web.ParseQueryPagination(r, &web.Pagination{Page: 1, Limit: 25})
 	if err != nil {
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteBadRequest(w, err)
+		return
+	}
+
+	search, err := web.ParseSearchString(r)
+	if err != nil {
+		web.WriteBadRequest(w, err)
+		return
+	}
+
+	users, err := us.store.GetUsersList(p.Page, p.Limit, search)
+	if err != nil {
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
@@ -51,8 +65,7 @@ func (us *UsersService) GetUser(w http.ResponseWriter, r *http.Request) {
 			web.WriteBadRequest(w, web.ErrIDMustBeenPosInt)
 			return
 		}
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
@@ -62,8 +75,7 @@ func (us *UsersService) GetUser(w http.ResponseWriter, r *http.Request) {
 			web.WriteNotFound(w, fmt.Errorf("user %d not found", userID))
 			return
 		}
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
@@ -75,22 +87,27 @@ func (us *UsersService) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
 	passHash, err := us.passManager.HashPassword(body.Password)
 	if err != nil {
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		if errors.As(err, &password.ErrEmptyPass) {
+			web.WriteBadRequest(w, err)
+			return
+		}
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
 	err = us.store.CreateUser(replacePasswordOnHash(body, passHash))
 	if err != nil {
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		if isConstrain, e := us.store.CheckConstrainErr(err); isConstrain {
+			web.WriteBadRequest(w, e)
+			return
+		}
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
@@ -104,16 +121,14 @@ func (us *UsersService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 			web.WriteBadRequest(w, web.ErrIDMustBeenPosInt)
 			return
 		}
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
 	body := new(model.EditUserBody)
 	err = json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
@@ -123,8 +138,11 @@ func (us *UsersService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 			web.WriteNotFound(w, fmt.Errorf("user %d not found", userID))
 			return
 		}
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		if isConstrain, err := us.store.CheckConstrainErr(err); isConstrain {
+			web.WriteBadRequest(w, err)
+			return
+		}
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
@@ -135,11 +153,10 @@ func (us *UsersService) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
-			web.WriteBadRequest(w, web.ErrIDMustBeenPosInt)
+			web.WriteBadRequest(w, err)
 			return
 		}
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 
@@ -149,8 +166,7 @@ func (us *UsersService) DeleteUser(w http.ResponseWriter, r *http.Request) {
 			web.WriteNotFound(w, fmt.Errorf("user %d not found", userID))
 			return
 		}
-		us.logger.Error(err.Error())
-		web.WriteServerError(w)
+		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
 

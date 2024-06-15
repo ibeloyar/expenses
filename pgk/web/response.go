@@ -2,8 +2,15 @@ package web
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 )
+
+// WebError will send in any response with status codes 4xx and 5xx
+type WebError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
 
 // WriteOK send on client response with status code 200 and data
 // if data == nil, will send response without body
@@ -115,5 +122,40 @@ func WriteServerError(w http.ResponseWriter) {
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// WriteServerErrorWithSlog send on client response with status code 500 and text "internal server error"
+// and also logs error text in slog logger
+func WriteServerErrorWithSlog(w http.ResponseWriter, logger *slog.Logger, e error) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusInternalServerError)
+
+	logger.With("err", e.Error()).Error("internal server error")
+
+	err := json.NewEncoder(w).Encode(&WebError{
+		Code:    http.StatusInternalServerError,
+		Message: "internal server error",
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// PanicRecover sends a response with code 500 and handles the panic
+func PanicRecover(w http.ResponseWriter) {
+	if r := recover(); r != nil {
+		WriteServerError(w)
+		return
+	}
+}
+
+// PanicRecoverWithSlog - sends a response with code 500,
+// handles the panic and writes it to the logs (*slog.Logger)
+func PanicRecoverWithSlog(w http.ResponseWriter, logger *slog.Logger, op string) {
+	if r := recover(); r != nil {
+		logger.Error("panic", slog.String("op", op))
+		WriteServerError(w)
+		return
 	}
 }

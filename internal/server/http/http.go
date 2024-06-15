@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/B-Dmitriy/expenses/internal/config"
+	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/B-Dmitriy/expenses/pgk/password"
-	"github.com/jackc/pgx/v5"
 )
 
 type HTTPServer struct {
@@ -21,7 +21,7 @@ type HTTPServer struct {
 func NewServer(
 	cfg config.HTTPSettings,
 	logger *slog.Logger,
-	db *pgx.Conn,
+	db *storage.PGStorage,
 	pm *password.PasswordManager,
 ) *HTTPServer {
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)

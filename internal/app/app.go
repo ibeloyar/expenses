@@ -32,7 +32,7 @@ func Run(cfg *config.Config) {
 		os.Exit(1)
 	}
 
-	srv := server.NewServer(cfg.HTTPServer, lgr, store.Conn, pm)
+	srv := server.NewServer(cfg.HTTPServer, lgr, store, pm)
 
 	go func() {
 		err = srv.Run()

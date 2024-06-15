@@ -1,7 +1,12 @@
 package password
 
 import (
+	"errors"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrEmptyPass = errors.New("password cannot be an empty string")
 )
 
 type PasswordManager struct {
@@ -15,6 +20,10 @@ func New(passCost int) *PasswordManager {
 }
 
 func (pm *PasswordManager) HashPassword(password string) (string, error) {
+	if len(password) < 1 {
+		return "", ErrEmptyPass
+	}
+
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), pm.passCost)
 	return string(bytes), err
 }
