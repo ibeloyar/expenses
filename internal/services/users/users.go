@@ -64,6 +64,8 @@ func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
+	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUser")
+
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
@@ -88,6 +90,8 @@ func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
+	defer web.PanicRecoverWithSlog(w, us.logger, "users.CreateUser")
+
 	body := new(model.CreateUserBody)
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -95,6 +99,7 @@ func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
+	defer r.Body.Close()
 
 	err = us.validator.Struct(body)
 	if err != nil {
@@ -127,6 +132,8 @@ func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
+	defer web.PanicRecoverWithSlog(w, us.logger, "users.EditUserInfo")
+
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
@@ -143,6 +150,7 @@ func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 		web.WriteServerErrorWithSlog(w, us.logger, err)
 		return
 	}
+	defer r.Body.Close()
 
 	err = us.validator.Struct(body)
 	if err != nil {
@@ -169,6 +177,8 @@ func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (us *UsersPGService) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	defer web.PanicRecoverWithSlog(w, us.logger, "users.DeleteUser")
+
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
