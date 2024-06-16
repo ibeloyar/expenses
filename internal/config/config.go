@@ -32,9 +32,8 @@ type Config struct {
 }
 
 type SecuritySettings struct {
-	PassCost         int    `yaml:"pass_cost"`
-	JWTSecret        string `yaml:"jwt_secret"`
-	JWTRefreshSecret string `yaml:"jwt_refresh_secret"`
+	PassCost  int    `yaml:"pass_cost"`
+	JWTSecret string `yaml:"jwt_secret"`
 }
 
 func MustLoad() Config {

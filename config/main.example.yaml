@@ -15,4 +15,3 @@ http_server:
 security:
   pass_cost: 3
   jwt_secret: 'secret'
-  jwt_refresh_secret: 'secret'
