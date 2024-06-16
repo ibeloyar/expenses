@@ -14,6 +14,7 @@ import (
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/B-Dmitriy/expenses/pgk/logger"
 	"github.com/B-Dmitriy/expenses/pgk/password"
+	"github.com/B-Dmitriy/expenses/pgk/tokens"
 
 	server "github.com/B-Dmitriy/expenses/internal/server/http"
 )
@@ -26,13 +27,16 @@ func Run(cfg *config.Config) {
 	pm := password.New(cfg.Security.PassCost)
 	lgr.Info("password manager initialized")
 
+	tm := tokens.New(cfg.Security.JWTSecret)
+	lgr.Info("tokens manager initialized")
+
 	store, err := postgres.NewStorage(cfg.Storage)
 	if err != nil {
 		lgr.Error(err.Error())
 		os.Exit(1)
 	}
 
-	srv := server.NewServer(cfg.HTTPServer, lgr, store, pm)
+	srv := server.NewServer(cfg.HTTPServer, lgr, store, tm, pm)
 
 	go func() {
 		err = srv.Run()

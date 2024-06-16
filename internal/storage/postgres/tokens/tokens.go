@@ -13,7 +13,7 @@ type TokensStorage struct {
 	db *postgres.PGStorage
 }
 
-func NewUsersStorage(db *postgres.PGStorage) storage.TokensStore {
+func NewTokensStorage(db *postgres.PGStorage) storage.TokensStore {
 	return &TokensStorage{
 		db: db,
 	}
