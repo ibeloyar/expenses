@@ -9,7 +9,16 @@ type ServiceUtils interface {
 type UsersStore interface {
 	GetUsersList(page, limit int, search string) ([]*model.UserInfo, error)
 	GetUser(id int) (*model.UserInfo, error)
+	GetUserByEmail(email string) (*model.User, error)
 	CreateUser(body *model.CreateUserBody) error
 	EditUser(id int, user *model.EditUserBody) error
 	DeleteUser(id int) error
+}
+
+type TokensStore interface {
+	GetByUserID(userID int) (*model.Token, error)
+	CheckToken(userID int) (bool, error)
+	CreateToken(userID int, token string) error
+	ChangeToken(userID int, token string) error
+	DeleteToken(userID int) error
 }

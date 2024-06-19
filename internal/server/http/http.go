@@ -11,6 +11,7 @@ import (
 	"github.com/B-Dmitriy/expenses/internal/config"
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/B-Dmitriy/expenses/pgk/password"
+	"github.com/B-Dmitriy/expenses/pgk/tokens"
 )
 
 type HTTPServer struct {
@@ -22,12 +23,13 @@ func NewServer(
 	cfg config.HTTPSettings,
 	logger *slog.Logger,
 	db *postgres.PGStorage,
+	tm *tokens.TokensManager,
 	pm *password.PasswordManager,
 ) *HTTPServer {
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	r := http.NewServeMux()
 
-	handler := initRoutes(r, logger, db, pm)
+	handler := initRoutes(r, logger, db, tm, pm)
 
 	return &HTTPServer{
 		server: &http.Server{

@@ -70,16 +70,19 @@ func WriteUnauthorized(w http.ResponseWriter, e error) {
 }
 
 // WriteForbidden send on client response with status code 403 and error text
+// if e == nil, will send response without body
 func WriteForbidden(w http.ResponseWriter, e error) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusForbidden)
 
-	err := json.NewEncoder(w).Encode(&WebError{
-		Code:    http.StatusForbidden,
-		Message: e.Error(),
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if e != nil {
+		err := json.NewEncoder(w).Encode(&WebError{
+			Code:    http.StatusForbidden,
+			Message: e.Error(),
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -98,16 +101,19 @@ func WriteBadRequest(w http.ResponseWriter, e error) {
 }
 
 // WriteNotFound send on client response with status code 404 and error text
+// if e == nil, will send response without body
 func WriteNotFound(w http.ResponseWriter, e error) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNotFound)
 
-	err := json.NewEncoder(w).Encode(&WebError{
-		Code:    http.StatusNotFound,
-		Message: e.Error(),
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if e != nil {
+		err := json.NewEncoder(w).Encode(&WebError{
+			Code:    http.StatusNotFound,
+			Message: e.Error(),
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
 

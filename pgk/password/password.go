@@ -2,6 +2,10 @@ package password
 
 import (
 	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -31,4 +35,15 @@ func (pm *PasswordManager) HashPassword(password string) (string, error) {
 func (pm *PasswordManager) CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+func (pm *PasswordManager) GetAuthorizationHeader(r *http.Request) (string, error) {
+	headerToken := r.Header.Get("Authorization")
+	bearerTokenSlice := strings.Split(headerToken, " ")
+
+	if len(bearerTokenSlice) < 2 {
+		return "", fmt.Errorf("bearer token not found")
+	}
+
+	return bearerTokenSlice[1], nil
 }

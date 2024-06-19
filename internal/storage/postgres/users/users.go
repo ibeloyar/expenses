@@ -63,12 +63,7 @@ func (s *UsersStorage) GetUsersList(page, limit int, search string) ([]*model.Us
 func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 	user := new(model.User)
 
-	stmt, err := s.db.Conn.Prepare(context.Background(), "getUser", "SELECT * FROM users WHERE id = $1;")
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.db.Conn.QueryRow(context.Background(), stmt.SQL, id).Scan(
+	err := s.db.Conn.QueryRow(context.Background(), "SELECT * FROM users WHERE id = $1;", id).Scan(
 		&user.ID,
 		&user.Login,
 		&user.Email,
@@ -83,6 +78,26 @@ func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 	}
 
 	return convertUserToUserInfo(user), nil
+}
+
+func (s *UsersStorage) GetUserByEmail(email string) (*model.User, error) {
+	user := new(model.User)
+
+	err := s.db.Conn.QueryRow(context.Background(), "SELECT * FROM users WHERE email = $1;", email).Scan(
+		&user.ID,
+		&user.Login,
+		&user.Email,
+		&user.EmailConfirmed,
+		&user.Password,
+		&user.RoleID,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *UsersStorage) CreateUser(body *model.CreateUserBody) error {
