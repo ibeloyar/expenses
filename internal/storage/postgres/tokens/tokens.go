@@ -75,7 +75,7 @@ func (ts *TokensStorage) CreateToken(userID int, token string) error {
 func (ts *TokensStorage) ChangeToken(userID int, token string) error {
 	res, err := ts.db.Conn.Exec(
 		context.Background(),
-		"UPDATE refresh_tokens SET refresh_token = $1 WHERE user_id = $2;",
+		"UPDATE refresh_tokens SET token = $1 WHERE user_id = $2;",
 		token, userID,
 	)
 	if err != nil {
@@ -92,7 +92,7 @@ func (ts *TokensStorage) ChangeToken(userID int, token string) error {
 func (ts *TokensStorage) DeleteToken(userID int) error {
 	res, err := ts.db.Conn.Exec(
 		context.Background(),
-		"DELETE FROM refresh_tokens WHERE user_id = ?;",
+		"DELETE FROM refresh_tokens WHERE user_id = $1;",
 		userID,
 	)
 	if err != nil {

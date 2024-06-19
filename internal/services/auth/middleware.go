@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/pgk/web"
@@ -15,17 +15,20 @@ func (a *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		_, err = a.tokensManager.VerifyJWTToken(bearer)
+		userInfo, err := a.tokensManager.VerifyJWTToken(bearer)
 		if err != nil {
 			web.WriteUnauthorized(w, err)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctxUserID := context.WithValue(context.Background(), "userID", userInfo.UserID)
+		ctxUserRoleID := context.WithValue(ctxUserID, "userRoleID", userInfo.UserRoleID)
+
+		next.ServeHTTP(w, r.WithContext(ctxUserRoleID))
 	})
 }
 
-func (a *AuthService) AdminAuthMiddleware(next http.Handler) http.Handler {
+func (a *AuthService) AuthOnlyAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		bearer, err := a.passManager.GetAuthorizationHeader(r)
 		if err != nil {
@@ -40,10 +43,11 @@ func (a *AuthService) AdminAuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		if userInfo.UserRoleID != 1 {
-			web.WriteForbidden(w, fmt.Errorf("forbidden"))
+			web.WriteForbidden(w, nil)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctxUserID := context.WithValue(context.Background(), "userID", userInfo.UserID)
+		next.ServeHTTP(w, r.WithContext(ctxUserID))
 	})
 }

@@ -39,6 +39,10 @@ func NewUsersService(
 	}
 }
 
+const (
+	AdminRoleID = 1 // TODO: вынести в конфиг
+)
+
 func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUsersList")
 
@@ -66,6 +70,9 @@ func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUser")
 
+	tokenUserID := r.Context().Value("userID")
+	tokenUserRoleID := r.Context().Value("userRoleID")
+
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
@@ -73,6 +80,11 @@ func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		web.WriteServerErrorWithSlog(w, us.logger, err)
+		return
+	}
+
+	if tokenUserID != userID && tokenUserRoleID != AdminRoleID {
+		web.WriteForbidden(w, nil)
 		return
 	}
 
@@ -134,6 +146,9 @@ func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.EditUserInfo")
 
+	tokenUserID := r.Context().Value("userID")
+	tokenUserRoleID := r.Context().Value("userRoleID")
+
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
 		if errors.Is(err, web.ErrIDMustBeenPosInt) {
@@ -141,6 +156,11 @@ func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		web.WriteServerErrorWithSlog(w, us.logger, err)
+		return
+	}
+
+	if tokenUserID != userID && tokenUserRoleID != AdminRoleID {
+		web.WriteForbidden(w, nil)
 		return
 	}
 
@@ -176,8 +196,14 @@ func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 	web.WriteOK(w, nil)
 }
 
+// DeleteUser
+// TODO: удаление должно быть в транзакции с удалением всех связанных элементов.
+// Пока остальных сервисов (и таблиц) нет, невозможно доделать.
 func (us *UsersPGService) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.DeleteUser")
+
+	tokenUserID := r.Context().Value("userID")
+	tokenUserRoleID := r.Context().Value("userRoleID")
 
 	userID, err := web.ParseIDFromURL(r, "userID")
 	if err != nil {
@@ -186,6 +212,11 @@ func (us *UsersPGService) DeleteUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		web.WriteServerErrorWithSlog(w, us.logger, err)
+		return
+	}
+
+	if tokenUserID != userID && tokenUserRoleID != AdminRoleID {
+		web.WriteForbidden(w, nil)
 		return
 	}
 

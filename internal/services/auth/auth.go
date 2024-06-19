@@ -72,7 +72,7 @@ func (as *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 	candidate, err := as.usersStorage.GetUserByEmail(body.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			web.WriteNotFound(w, fmt.Errorf("user with email %d not found", body.Email))
+			web.WriteNotFound(w, fmt.Errorf("user with email %s not found", body.Email))
 			return
 		}
 		web.WriteServerErrorWithSlog(w, as.logger, err)
@@ -139,11 +139,18 @@ func (as *AuthService) Registration(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	hashPass, err := as.passManager.HashPassword(body.Password)
+	if err != nil {
+		web.WriteServerErrorWithSlog(w, as.logger, err)
+		return
+	}
+
 	err = as.usersStorage.CreateUser(&model.CreateUserBody{
 		Email:    body.Email,
 		Login:    body.Login,
-		Password: body.Password,
+		Password: hashPass,
 	})
+
 	if err != nil {
 		if isConstrain, e := as.utils.CheckConstrainError(err); isConstrain {
 			web.WriteBadRequest(w, e)
@@ -162,6 +169,7 @@ func (as *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 	bearer, err := as.passManager.GetAuthorizationHeader(r)
 	if err != nil {
 		web.WriteUnauthorized(w, err)
+		return
 	}
 
 	userInfo, err := as.tokensManager.VerifyJWTToken(bearer)
@@ -172,9 +180,20 @@ func (as *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 
 	err = as.tokensStorage.DeleteToken(userInfo.UserID)
 	if err != nil {
+		if errors.As(err, &storage.ErrNotFound) {
+			web.WriteNotFound(w, nil)
+			return
+		}
 		web.WriteServerErrorWithSlog(w, as.logger, err)
 		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     CookieName,
+		Value:    "",
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
 
 	web.WriteNoContent(w, nil)
 }
@@ -205,6 +224,13 @@ func (as *AuthService) Refresh(w http.ResponseWriter, r *http.Request) {
 		web.WriteServerErrorWithSlog(w, as.logger, err)
 		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     CookieName,
+		Value:    tkns.RefreshToken,
+		HttpOnly: true,
+		MaxAge:   2 * 24 * 3600, // 14 days
+	})
 
 	web.WriteOK(w, &tokens.Tokens{
 		AcceptToken:  tkns.AcceptToken,

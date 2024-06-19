@@ -1,7 +1,6 @@
 package http
 
 import (
-	"github.com/B-Dmitriy/expenses/pgk/tokens"
 	"log/slog"
 	"net/http"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/B-Dmitriy/expenses/internal/services/users"
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/B-Dmitriy/expenses/pgk/password"
+	"github.com/B-Dmitriy/expenses/pgk/tokens"
 	"github.com/go-playground/validator/v10"
 
 	tokensDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/tokens"
@@ -31,19 +31,18 @@ func initRoutes(
 	usersService := users.NewUsersService(logger, usersStore, v, utils, pm)
 	authService := auth.NewAuthService(logger, utils, v, usersStore, tokensStore, tm, pm)
 
+	// Auth
 	serv.HandleFunc("POST /api/v1/login", authService.Login)
-	serv.HandleFunc("POST /api/v1/logout", authService.Logout)
-	serv.HandleFunc("POST /api/v1/refresh", authService.Refresh)
 	serv.HandleFunc("POST /api/v1/registration", authService.Registration)
+	serv.Handle("POST /api/v1/logout", authService.AuthMiddleware(http.HandlerFunc(authService.Logout)))
+	serv.Handle("POST /api/v1/refresh", authService.AuthMiddleware(http.HandlerFunc(authService.Refresh)))
 
-	// TODO: разобраться, какие данные может получать пользователь. И как с ними взаимодействовать.
-	// Пользователь может: получить СВОЙ аккаунт, удалить СВОЙ аккаунт, изменить СВОЙ аккаунт
-	// Создавать пользователя вручную, не через регистацию может только админ, так же как и просматривать всех юзеров
-	serv.Handle("GET /api/v1/users", authService.AdminAuthMiddleware(http.HandlerFunc(usersService.GetUsersList)))
-	serv.Handle("POST /api/v1/users", authService.AdminAuthMiddleware(http.HandlerFunc(usersService.CreateUser)))
-	serv.HandleFunc("GET /api/v1/users/{userID}", usersService.GetUser)
-	serv.HandleFunc("PUT /api/v1/users/{userID}", usersService.EditUserInfo)
-	serv.HandleFunc("DELETE /api/v1/users/{userID}", usersService.DeleteUser)
+	// Users
+	serv.Handle("GET /api/v1/users/{userID}", authService.AuthMiddleware(http.HandlerFunc(usersService.GetUser)))
+	serv.Handle("PUT /api/v1/users/{userID}", authService.AuthMiddleware(http.HandlerFunc(usersService.EditUserInfo)))
+	serv.Handle("DELETE /api/v1/users/{userID}", authService.AuthMiddleware(http.HandlerFunc(usersService.DeleteUser)))
+	serv.Handle("GET /api/v1/users", authService.AuthOnlyAdminMiddleware(http.HandlerFunc(usersService.GetUsersList)))
+	serv.Handle("POST /api/v1/users", authService.AuthOnlyAdminMiddleware(http.HandlerFunc(usersService.CreateUser)))
 
 	return serv
 }

@@ -13,7 +13,7 @@ type Tokens struct {
 }
 
 type TokensManager struct {
-	secretKey string
+	secretKey []byte
 }
 
 type UserInfo struct {
@@ -23,7 +23,7 @@ type UserInfo struct {
 
 func New(secretKey string) *TokensManager {
 	return &TokensManager{
-		secretKey: secretKey,
+		secretKey: []byte(secretKey),
 	}
 }
 
