@@ -14,7 +14,7 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/tokens"
 
-	_ "github.com/B-Dmitriy/expenses/docs"
+	_ "github.com/B-Dmitriy/expenses/api"
 )
 
 type HTTPServer struct {
