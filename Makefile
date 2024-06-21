@@ -7,4 +7,4 @@ install-tools:
 	go install github.com/swaggo/swag/cmd/swag@latest # swagger
 
 swagger-gen:
-	$(GOPATH)/bin/swag init -g $(MAIN_FILE)
+	$(GOPATH)/bin/swag init -o ./api -g $(MAIN_FILE)
