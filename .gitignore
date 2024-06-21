@@ -1,3 +1,4 @@
 .idea
 *.sql
 config/main.yaml
+config/docker/.env.pg

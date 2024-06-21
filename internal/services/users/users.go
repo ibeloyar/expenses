@@ -43,6 +43,17 @@ const (
 	AdminRoleID = 1 // TODO: вынести в конфиг
 )
 
+// GetUsersList
+// @Router /api/v1/users [get]
+// @Tags Users
+// @Param page query int false "positive int" minimum(1) maximum(10) default(1)
+// @Param limit query int false "positive int" minimum(1) maximum(100) default(25)
+// @Param search query string false "any string" maxlength(256)
+// @Description Получить список пользователей (только для админа)
+// @Security BearerAuth
+// @Success 200 {object} []model.UserInfo
+// @Failure 400 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUsersList")
 
@@ -64,9 +75,21 @@ func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO:
 	web.WriteOK(w, users)
 }
 
+// GetUser
+// @Router /api/v1/users/{id} [get]
+// @Tags Users
+// @Param id path int true "User ID"
+// @Description Получить информацию о пользователе (Пользователь - о семе, Админ о любом)
+// @Security BearerAuth
+// @Success 200 {object} model.UserInfo
+// @Failure 400 {object} web.WebError
+// @Failure 403 {object} web.WebError
+// @Failure 404 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUser")
 
@@ -101,6 +124,15 @@ func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
 	web.WriteOK(w, user)
 }
 
+// CreateUser
+// @Router /api/v1/users [post]
+// @Tags Users
+// @Param request body model.CreateUserBody false "query params"
+// @Description Создать пользователя вручную. (Только админ)
+// @Security BearerAuth
+// @Success 201
+// @Failure 400 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.CreateUser")
 
@@ -140,9 +172,21 @@ func (us *UsersPGService) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	web.WriteOK(w, nil)
+	web.WriteCreated(w, nil)
 }
 
+// EditUserInfo
+// @Router /api/v1/users/{id} [put]
+// @Tags Users
+// @Param id path int true "User ID"
+// @Param request body model.EditUserBody false "query params"
+// @Description Изменить информацию о пользователе (Пользователь - о семе, Админ о любом)
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} web.WebError
+// @Failure 403 {object} web.WebError
+// @Failure 404 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.EditUserInfo")
 
@@ -197,6 +241,15 @@ func (us *UsersPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteUser
+// @Router /api/v1/users/{id} [delete]
+// @Tags Users
+// @Param id path int true "User ID"
+// @Description Удалить пользователя (Пользователь - только себя, Админ - любого)
+// @Security BearerAuth
+// @Success 204
+// @Failure 403 {object} web.WebError
+// @Failure 404 {object} web.WebError
+// @Failure 500 {object} web.WebError
 // TODO: удаление должно быть в транзакции с удалением всех связанных элементов.
 // Пока остальных сервисов (и таблиц) нет, невозможно доделать.
 func (us *UsersPGService) DeleteUser(w http.ResponseWriter, r *http.Request) {

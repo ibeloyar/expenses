@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"log/slog"
 	"net/http"
 	"time"
@@ -12,6 +13,8 @@ import (
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/tokens"
+
+	_ "github.com/B-Dmitriy/expenses/docs"
 )
 
 type HTTPServer struct {
@@ -20,6 +23,7 @@ type HTTPServer struct {
 }
 
 func NewServer(
+	env string,
 	cfg config.HTTPSettings,
 	logger *slog.Logger,
 	db *postgres.PGStorage,
@@ -30,6 +34,10 @@ func NewServer(
 	r := http.NewServeMux()
 
 	handler := initRoutes(r, logger, db, tm, pm)
+
+	if env != config.ProductionENV {
+		handler.HandleFunc("GET /swagger/*", httpSwagger.Handler())
+	}
 
 	return &HTTPServer{
 		server: &http.Server{

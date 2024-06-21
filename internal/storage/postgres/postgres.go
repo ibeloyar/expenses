@@ -42,6 +42,7 @@ type PGStorage struct {
 }
 
 func NewStorage(settings config.StorageSettings) (*PGStorage, error) {
+	// ?sslmode=disable
 	urlExample := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
 		settings.DBDriver,
 		settings.DBUser,

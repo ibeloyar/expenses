@@ -50,6 +50,15 @@ func NewAuthService(
 	}
 }
 
+// Login
+// @Router /api/v1/login [post]
+// @Tags Authentication
+// @Description Вход под учётной записью
+// @Param request body model.LoginCredentials false "query params"
+// @Success 200 {object} model.LoginResponse
+// @Failure 400 {object} web.WebError
+// @Failure 404 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (as *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 	web.PanicRecoverWithSlog(w, as.logger, "auth.Login")
 
@@ -127,6 +136,14 @@ func (as *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Registration
+// @Router /api/v1/registration [post]
+// @Tags Authentication
+// @Description Регистрация пользователя
+// @Param request body model.RegistrationData false "query params"
+// @Success 201
+// @Failure 400 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (as *AuthService) Registration(w http.ResponseWriter, r *http.Request) {
 	web.PanicRecoverWithSlog(w, as.logger, "auth.Registration")
 
@@ -163,6 +180,15 @@ func (as *AuthService) Registration(w http.ResponseWriter, r *http.Request) {
 	web.WriteCreated(w, nil)
 }
 
+// Logout
+// @Router /api/v1/logout [post]
+// @Tags Authentication
+// @Description Выход из учётной записи
+// @Security BearerAuth
+// @Success 204
+// @Failure 401 {object} web.WebError
+// @Failure 404 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (as *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 	web.PanicRecoverWithSlog(w, as.logger, "auth.Logout")
 
@@ -198,6 +224,14 @@ func (as *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 	web.WriteNoContent(w, nil)
 }
 
+// Refresh
+// @Router /api/v1/refresh [post]
+// @Tags Authentication
+// @Description Перегенерировать токен пользователя
+// @Security BearerAuth
+// @Success 200 {object} tokens.Tokens
+// @Failure 400 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (as *AuthService) Refresh(w http.ResponseWriter, r *http.Request) {
 	web.PanicRecoverWithSlog(w, as.logger, "auth.Refresh")
 

@@ -19,7 +19,7 @@ func NewTokensStorage(db *postgres.PGStorage) storage.TokensStore {
 	}
 }
 
-func (ts *TokensStorage) GetByUserID(userID int) (*model.Token, error) {
+func (ts *TokensStorage) GetTokenByUserID(userID int) (*model.Token, error) {
 	token := new(model.Token)
 	err := ts.db.Conn.QueryRow(
 		context.Background(),

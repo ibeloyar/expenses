@@ -36,7 +36,7 @@ func Run(cfg *config.Config) {
 		os.Exit(1)
 	}
 
-	srv := server.NewServer(cfg.HTTPServer, lgr, store, tm, pm)
+	srv := server.NewServer(cfg.ENV, cfg.HTTPServer, lgr, store, tm, pm)
 
 	go func() {
 		err = srv.Run()

@@ -7,15 +7,15 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/web"
 )
 
-func (a *AuthService) AuthMiddleware(next http.Handler) http.Handler {
+func (as *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		bearer, err := a.passManager.GetAuthorizationHeader(r)
+		bearer, err := as.passManager.GetAuthorizationHeader(r)
 		if err != nil {
 			web.WriteUnauthorized(w, err)
 			return
 		}
 
-		userInfo, err := a.tokensManager.VerifyJWTToken(bearer)
+		userInfo, err := as.tokensManager.VerifyJWTToken(bearer)
 		if err != nil {
 			web.WriteUnauthorized(w, err)
 			return
@@ -28,15 +28,15 @@ func (a *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (a *AuthService) AuthOnlyAdminMiddleware(next http.Handler) http.Handler {
+func (as *AuthService) AuthOnlyAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		bearer, err := a.passManager.GetAuthorizationHeader(r)
+		bearer, err := as.passManager.GetAuthorizationHeader(r)
 		if err != nil {
 			web.WriteUnauthorized(w, err)
 			return
 		}
 
-		userInfo, err := a.tokensManager.VerifyJWTToken(bearer)
+		userInfo, err := as.tokensManager.VerifyJWTToken(bearer)
 		if err != nil {
 			web.WriteUnauthorized(w, err)
 			return
