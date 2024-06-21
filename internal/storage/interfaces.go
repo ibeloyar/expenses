@@ -16,9 +16,17 @@ type UsersStore interface {
 }
 
 type TokensStore interface {
-	GetByUserID(userID int) (*model.Token, error)
+	GetTokenByUserID(userID int) (*model.Token, error)
 	CheckToken(userID int) (bool, error)
 	CreateToken(userID int, token string) error
 	ChangeToken(userID int, token string) error
 	DeleteToken(userID int) error
+}
+
+type CategoriesStore interface {
+	GetAllUserCategories(userID, page, limit int) ([]*model.Category, error)
+	GetCategoryByID(id int) (*model.Category, error)
+	CreateCategory(data *model.CreateCategoryBody) error
+	EditCategory(categoryID int, data *model.EditCategoryBody) error
+	DeleteCategory(id int) error
 }

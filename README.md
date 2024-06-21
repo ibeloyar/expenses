@@ -1,13 +1,45 @@
-```text
-docker build -t expenses-pg:v.0 --file ./build/docker/postgres.Dockerfile .
+Getting started in Docker
+```shell
+docker network create expenses-net
+
+# Postgres
+docker build -t expenses-pg:0.0.1 --file ./build/docker/postgres.Dockerfile .
 docker run -d --name expenses-pg \
     --env-file ./config/docker/.env.pg \
     -v expenses-pg:/var/lib/postgresql/data \
-    -p 5432:5432 expenses-pg:v.0
+    --network expenses-net \
+    -h expenses-pg \
+    -p 5432:5432 expenses-pg:0.0.1
 
 docker exec -it expenses-pg /bin/bash
-psql -h 0.0.0.0 -p 5432 -U postgres -W
+psql -h expenses-pg -p 5432 -U username -W
 
-docker build -t expenses-app:v.0 --file ./build/docker/app.Dockerfile .
-docker run -d --name expenses-app -p 7070:7070 expenses-app:v.0
+# App
+docker build -t expenses-app:0.0.1 --file ./build/docker/app.Dockerfile .
+docker run -d --name expenses-app \
+    --network expenses-net \
+    -p 7070:7070 expenses-app:0.0.1
+```
+
+Make
+```text
+make run
+make install-tools
+make swagger-gen
+```
+
+Cors?
+```text
+func (c *Controller) CorsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
 ```

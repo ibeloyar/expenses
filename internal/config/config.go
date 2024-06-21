@@ -5,7 +5,10 @@ import (
 	"os"
 )
 
-const MainConfigPath = "config/main.yaml"
+const (
+	ProductionENV  = "production"
+	MainConfigPath = "config/main.yaml"
+)
 
 type StorageSettings struct {
 	DBDriver string `yaml:"db_driver"`
