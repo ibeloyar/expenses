@@ -11,6 +11,7 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/tokens"
 	"github.com/go-playground/validator/v10"
 
+	categoriesDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/categories"
 	tokensDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/tokens"
 	usersDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/users"
 )
@@ -27,6 +28,7 @@ func initRoutes(
 
 	usersStore := usersDB.NewUsersStorage(db)
 	tokensStore := tokensDB.NewTokensStorage(db)
+	_ = categoriesDB.NewCategoriesStorage(db)
 
 	usersService := users.NewUsersService(logger, usersStore, v, utils, pm)
 	authService := auth.NewAuthService(logger, utils, v, usersStore, tokensStore, tm, pm)
