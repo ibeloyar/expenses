@@ -52,6 +52,8 @@ const (
 // @Security BearerAuth
 // @Success 200 {object} []model.UserInfo
 // @Failure 400 {object} web.WebError
+// @Failure 401 {object} web.WebError
+// @Failure 403 {object} web.WebError
 // @Failure 500 {object} web.WebError
 func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUsersList")
@@ -74,7 +76,6 @@ func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO:
 	web.WriteOK(w, users)
 }
 
@@ -86,6 +87,7 @@ func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Success 200 {object} model.UserInfo
 // @Failure 400 {object} web.WebError
+// @Failure 401 {object} web.WebError
 // @Failure 403 {object} web.WebError
 // @Failure 404 {object} web.WebError
 // @Failure 500 {object} web.WebError

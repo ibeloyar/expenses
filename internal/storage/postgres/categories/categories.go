@@ -20,7 +20,7 @@ func NewCategoriesStorage(db *postgres.PGStorage) storage.CategoriesStore {
 	}
 }
 
-func (cs *CategoriesStorage) GetAllUserCategories(userID, page, limit int) ([]*model.Category, error) {
+func (cs *CategoriesStorage) GetAllUserCategories(userID, page, limit int, search string) ([]*model.Category, error) {
 	categories := make([]*model.Category, 0)
 
 	offset, err := cs.db.Utils.GetOffset(page, limit)
@@ -30,8 +30,8 @@ func (cs *CategoriesStorage) GetAllUserCategories(userID, page, limit int) ([]*m
 
 	rows, err := cs.db.Conn.Query(
 		context.Background(),
-		`SELECT * FROM categories WHERE user_id = $1 LIMIT $2 OFFSET $3;`,
-		userID, limit, offset,
+		`SELECT * FROM categories WHERE (user_id = $1 OR user_id IS NULL) AND LOWER(login) LIKE CONCAT('%', $2::text,'%') LIMIT $3 OFFSET $4;`,
+		userID, search, limit, offset,
 	)
 	if err != nil {
 		return nil, err
@@ -56,10 +56,10 @@ func (cs *CategoriesStorage) GetAllUserCategories(userID, page, limit int) ([]*m
 	return categories, nil
 }
 
-func (cs *CategoriesStorage) GetCategoryByID(id int) (*model.Category, error) {
+func (cs *CategoriesStorage) GetCategoryByID(id, userID int) (*model.Category, error) {
 	category := new(model.Category)
 
-	err := cs.db.Conn.QueryRow(context.Background(), `SELECT * FROM categories WHERE id = $1`, id).Scan(
+	err := cs.db.Conn.QueryRow(context.Background(), `SELECT * FROM categories WHERE id = $1 AND user_id = $2`, id, userID).Scan(
 		&category.ID,
 		&category.UserID,
 		&category.Name,

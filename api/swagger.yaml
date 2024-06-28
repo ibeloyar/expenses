@@ -1,5 +1,29 @@
 basePath: /
 definitions:
+  model.Category:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  model.CreateCategoryBody:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      userID:
+        type: integer
+    type: object
   model.CreateUserBody:
     properties:
       email:
@@ -16,6 +40,13 @@ definitions:
     - email
     - login
     - password
+    type: object
+  model.EditCategoryBody:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
     type: object
   model.EditUserBody:
     properties:
@@ -114,6 +145,179 @@ info:
   title: Swagger Expenses API
   version: "1.0"
 paths:
+  /api/v1/categories:
+    get:
+      description: Получить список категорий (свои и общие)
+      parameters:
+      - default: 1
+        description: positive int
+        in: query
+        maximum: 10
+        minimum: 1
+        name: page
+        type: integer
+      - default: 25
+        description: positive int
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: any string
+        in: query
+        maxLength: 256
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Category'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Categories
+    post:
+      description: Создать категорию для пользователя
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/model.CreateCategoryBody'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Categories
+  /api/v1/categories/{id}:
+    delete:
+      description: Удалить пользователя (Пользователь - только себя, Админ - любого)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Categories
+    get:
+      description: Получить список категорий (свои и общие)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: positive int
+        in: query
+        maximum: 10
+        minimum: 1
+        name: page
+        type: integer
+      - default: 25
+        description: positive int
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: any string
+        in: query
+        maxLength: 256
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Categories
+    put:
+      description: Изменить информацию о категории пользователя
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/model.EditCategoryBody'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Categories
   /api/v1/login:
     post:
       description: Вход под учётной записью
@@ -240,6 +444,14 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/web.WebError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/web.WebError'
         "500":
           description: Internal Server Error
           schema:
@@ -315,6 +527,10 @@ paths:
             $ref: '#/definitions/model.UserInfo'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/web.WebError'
         "403":
