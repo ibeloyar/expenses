@@ -99,6 +99,9 @@ func (s *UsersStorage) GetUserByEmail(email string) (*model.User, error) {
 		&user.UpdatedAt,
 	)
 	if err != nil {
+		if errors.As(err, &pgx.ErrNoRows) {
+			return nil, storage.ErrNotFound
+		}
 		return nil, err
 	}
 

@@ -3,11 +3,12 @@ package categories
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/B-Dmitriy/expenses/internal/model"
 	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/jackc/pgx/v5"
-	"time"
 )
 
 type CategoriesStorage struct {
@@ -64,7 +65,11 @@ func (cs *CategoriesStorage) GetAllUserCategories(userID, page, limit int, searc
 func (cs *CategoriesStorage) GetCategoryByID(id, userID int) (*model.Category, error) {
 	category := new(model.Category)
 
-	err := cs.db.Conn.QueryRow(context.Background(), `SELECT * FROM categories WHERE id = $1 AND user_id = $2`, id, userID).Scan(
+	err := cs.db.Conn.QueryRow(
+		context.Background(),
+		`SELECT * FROM categories WHERE id = $1 AND user_id = $2`,
+		id, userID,
+	).Scan(
 		&category.ID,
 		&category.UserID,
 		&category.Name,
@@ -114,9 +119,7 @@ func (cs *CategoriesStorage) EditCategory(categoryID, userID int, data *model.Ed
 }
 
 func (cs *CategoriesStorage) DeleteCategory(id, userID int) error {
-	res, err := cs.db.Conn.Exec(
-		context.Background(),
-		`DELETE FROM categories WHERE id = $1 AND user_id = $2`,
+	res, err := cs.db.Conn.Exec(context.Background(), `DELETE FROM categories WHERE id = $1 AND user_id = $2`,
 		id, userID,
 	)
 	if err != nil {

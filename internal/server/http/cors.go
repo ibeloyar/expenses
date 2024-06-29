@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/B-Dmitriy/expenses/pgk/web"
 	"net/http"
+
+	"github.com/B-Dmitriy/expenses/pgk/web"
 )
 
 func CorsMiddleware(next http.Handler) http.Handler {

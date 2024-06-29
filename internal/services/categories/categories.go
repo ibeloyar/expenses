@@ -141,7 +141,6 @@ func (cs *CategoriesPGService) CreateCategory(w http.ResponseWriter, r *http.Req
 
 	err = cs.store.CreateCategory(body)
 	if err != nil {
-		// TODO: add constraints
 		if isConstrain, e := cs.utils.CheckConstrainError(err); isConstrain {
 			web.WriteBadRequest(w, e)
 			return
