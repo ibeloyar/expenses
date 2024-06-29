@@ -30,7 +30,10 @@ func (cs *CategoriesStorage) GetAllUserCategories(userID, page, limit int, searc
 
 	rows, err := cs.db.Conn.Query(
 		context.Background(),
-		`SELECT * FROM categories WHERE (user_id = $1 OR user_id IS NULL) AND LOWER(login) LIKE CONCAT('%', $2::text,'%') LIMIT $3 OFFSET $4;`,
+		`SELECT * FROM categories 
+			WHERE (user_id = $1 OR user_id IS NULL) 
+			AND (LOWER(name) LIKE CONCAT('%', $2::text,'%') OR LOWER(name) LIKE CONCAT('%', $2::text,'%'))
+			LIMIT $3 OFFSET $4;`,
 		userID, search, limit, offset,
 	)
 	if err != nil {
@@ -51,6 +54,8 @@ func (cs *CategoriesStorage) GetAllUserCategories(userID, page, limit int, searc
 		if err != nil {
 			return nil, err
 		}
+
+		categories = append(categories, category)
 	}
 
 	return categories, nil
@@ -74,7 +79,7 @@ func (cs *CategoriesStorage) GetCategoryByID(id, userID int) (*model.Category, e
 		return nil, err
 	}
 
-	return nil, nil
+	return category, nil
 }
 
 func (cs *CategoriesStorage) CreateCategory(data *model.CreateCategoryBody) error {

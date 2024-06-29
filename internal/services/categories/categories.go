@@ -3,7 +3,6 @@ package categories
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/B-Dmitriy/expenses/internal/model"
 	"log/slog"
 	"net/http"
@@ -198,7 +197,7 @@ func (cs *CategoriesPGService) EditUserInfo(w http.ResponseWriter, r *http.Reque
 	err = cs.store.EditCategory(categoryID, tokenUserID, body)
 	if err != nil {
 		if errors.Is(err, storage.ErrNotFound) {
-			web.WriteNotFound(w, fmt.Errorf("category %d not found", categoryID))
+			web.WriteNotFound(w, storage.ErrNotFound)
 			return
 		}
 		if isConstrain, err := cs.utils.CheckConstrainError(err); isConstrain {
