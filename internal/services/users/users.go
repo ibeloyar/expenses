@@ -12,7 +12,6 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/web"
 	"github.com/go-playground/validator/v10"
-	"github.com/jackc/pgx/v5"
 )
 
 type UsersPGService struct {
@@ -53,6 +52,8 @@ const (
 // @Security BearerAuth
 // @Success 200 {object} []model.UserInfo
 // @Failure 400 {object} web.WebError
+// @Failure 401 {object} web.WebError
+// @Failure 403 {object} web.WebError
 // @Failure 500 {object} web.WebError
 func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, us.logger, "users.GetUsersList")
@@ -75,7 +76,6 @@ func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO:
 	web.WriteOK(w, users)
 }
 
@@ -87,6 +87,7 @@ func (us *UsersPGService) GetUsersList(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Success 200 {object} model.UserInfo
 // @Failure 400 {object} web.WebError
+// @Failure 401 {object} web.WebError
 // @Failure 403 {object} web.WebError
 // @Failure 404 {object} web.WebError
 // @Failure 500 {object} web.WebError
@@ -113,8 +114,8 @@ func (us *UsersPGService) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := us.store.GetUser(userID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			web.WriteNotFound(w, fmt.Errorf("user %d not found", userID))
+		if errors.Is(err, storage.ErrNotFound) {
+			web.WriteNotFound(w, storage.ErrNotFound)
 			return
 		}
 		web.WriteServerErrorWithSlog(w, us.logger, err)
@@ -276,7 +277,7 @@ func (us *UsersPGService) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	err = us.store.DeleteUser(userID)
 	if err != nil {
 		if errors.Is(err, storage.ErrNotFound) {
-			web.WriteNotFound(w, fmt.Errorf("user %d not found", userID))
+			web.WriteNotFound(w, storage.ErrNotFound)
 			return
 		}
 		web.WriteServerErrorWithSlog(w, us.logger, err)

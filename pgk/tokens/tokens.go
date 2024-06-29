@@ -74,10 +74,12 @@ func (tm *TokensManager) VerifyJWTToken(tokenString string) (*UserInfo, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		userRoleID, err := strconv.Atoi(fmt.Sprintf("%v", claims["userRoleID"]))
 		if err != nil {
 			return nil, err
 		}
+
 		return &UserInfo{
 			UserRoleID: userRoleID,
 			UserID:     userID,

@@ -11,4 +11,5 @@ var (
 	ErrUsersEmptyLogin             = errors.New("login is required")
 	ErrUsersEmptyEmail             = errors.New("email is required")
 	ErrUsersEmptyPassword          = errors.New("password is required")
+	ErrCategoryUniqueName          = errors.New("category must have unique name")
 )

@@ -2,6 +2,8 @@ package users
 
 import (
 	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/B-Dmitriy/expenses/internal/model"
 	"github.com/B-Dmitriy/expenses/internal/storage"
@@ -74,6 +76,9 @@ func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 		&user.UpdatedAt,
 	)
 	if err != nil {
+		if errors.As(err, &pgx.ErrNoRows) {
+			return nil, storage.ErrNotFound
+		}
 		return nil, err
 	}
 
@@ -94,6 +99,9 @@ func (s *UsersStorage) GetUserByEmail(email string) (*model.User, error) {
 		&user.UpdatedAt,
 	)
 	if err != nil {
+		if errors.As(err, &pgx.ErrNoRows) {
+			return nil, storage.ErrNotFound
+		}
 		return nil, err
 	}
 

@@ -24,9 +24,9 @@ type TokensStore interface {
 }
 
 type CategoriesStore interface {
-	GetAllUserCategories(userID, page, limit int) ([]*model.Category, error)
-	GetCategoryByID(id int) (*model.Category, error)
+	GetAllUserCategories(userID, page, limit int, search string) ([]*model.Category, error)
+	GetCategoryByID(id, userID int) (*model.Category, error)
 	CreateCategory(data *model.CreateCategoryBody) error
-	EditCategory(categoryID int, data *model.EditCategoryBody) error
-	DeleteCategory(id int) error
+	EditCategory(categoryID, userID int, data *model.EditCategoryBody) error
+	DeleteCategory(id, userID int) error
 }

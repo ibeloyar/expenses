@@ -40,6 +40,8 @@ func (pgu *PGUtils) CheckConstrainError(e error) (bool, error) {
 			return true, storage.ErrUsersEmptyEmail
 		case "users_empty_password":
 			return true, storage.ErrUsersEmptyPassword
+		case "categories_user_category_name":
+			return true, storage.ErrCategoryUniqueName
 		default:
 			return false, e
 		}

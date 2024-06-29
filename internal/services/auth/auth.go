@@ -3,7 +3,6 @@ package auth
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -13,11 +12,15 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/tokens"
 	"github.com/B-Dmitriy/expenses/pgk/web"
 	"github.com/go-playground/validator/v10"
-	"github.com/jackc/pgx/v5"
 )
 
 const (
 	CookieName = "refresh_token"
+)
+
+var (
+	ErrCredentialWrong      = errors.New("login credential wrong")
+	ErrRefreshTokenNotFound = errors.New("refresh token in cookie not found")
 )
 
 type AuthService struct {
@@ -80,8 +83,8 @@ func (as *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 
 	candidate, err := as.usersStorage.GetUserByEmail(body.Email)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			web.WriteNotFound(w, fmt.Errorf("user with email %s not found", body.Email))
+		if errors.Is(err, storage.ErrNotFound) {
+			web.WriteNotFound(w, storage.ErrNotFound)
 			return
 		}
 		web.WriteServerErrorWithSlog(w, as.logger, err)
@@ -89,7 +92,7 @@ func (as *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !as.passManager.CheckPasswordHash(body.Password, candidate.Password) {
-		web.WriteBadRequest(w, fmt.Errorf("login credential wrong"))
+		web.WriteBadRequest(w, ErrCredentialWrong)
 		return
 	}
 
@@ -206,8 +209,8 @@ func (as *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 
 	err = as.tokensStorage.DeleteToken(userInfo.UserID)
 	if err != nil {
-		if errors.As(err, &storage.ErrNotFound) {
-			web.WriteNotFound(w, nil)
+		if errors.Is(err, storage.ErrNotFound) {
+			web.WriteNotFound(w, storage.ErrNotFound)
 			return
 		}
 		web.WriteServerErrorWithSlog(w, as.logger, err)
@@ -237,7 +240,7 @@ func (as *AuthService) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	c, err := r.Cookie(CookieName)
 	if err != nil {
-		web.WriteBadRequest(w, fmt.Errorf("refresh token in cookie not found"))
+		web.WriteBadRequest(w, ErrRefreshTokenNotFound)
 		return
 	}
 

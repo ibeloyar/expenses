@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"log/slog"
 	"net/http"
 	"time"
@@ -15,6 +14,7 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/tokens"
 
 	_ "github.com/B-Dmitriy/expenses/api"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 type HTTPServer struct {
