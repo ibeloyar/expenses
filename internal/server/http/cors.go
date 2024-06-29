@@ -1,12 +1,15 @@
 package http
 
-import "net/http"
+import (
+	"github.com/B-Dmitriy/expenses/pgk/web"
+	"net/http"
+)
 
 func CorsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Origin, X-Requested-With, Accept")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Origin")
 		if r.Method == "OPTIONS" {
 			CorsOptionHandlerFunc(w, r)
 		}
@@ -15,6 +18,9 @@ func CorsMiddleware(next http.Handler) http.Handler {
 }
 
 func CorsOptionHandlerFunc(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	_, err := w.Write(nil) // Write code 200
+	if err != nil {
+		web.WriteServerError(w)
+	}
 	return
 }
