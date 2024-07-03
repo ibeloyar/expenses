@@ -1,11 +1,13 @@
 package http
 
 import (
-	"github.com/B-Dmitriy/expenses/internal/services/categories"
 	"log/slog"
 	"net/http"
 
 	"github.com/B-Dmitriy/expenses/internal/services/auth"
+	"github.com/B-Dmitriy/expenses/internal/services/categories"
+	"github.com/B-Dmitriy/expenses/internal/services/counterparties"
+	"github.com/B-Dmitriy/expenses/internal/services/transactions"
 	"github.com/B-Dmitriy/expenses/internal/services/users"
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
 	"github.com/B-Dmitriy/expenses/pgk/password"
@@ -13,7 +15,9 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	categoriesDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/categories"
+	counterpartiesDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/counterparties"
 	tokensDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/tokens"
+	transactionsDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/transactions"
 	usersDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/users"
 )
 
@@ -30,10 +34,14 @@ func initRoutes(
 	usersStore := usersDB.NewUsersStorage(db)
 	tokensStore := tokensDB.NewTokensStorage(db)
 	categoriesStore := categoriesDB.NewCategoriesStorage(db)
+	transactionsStore := transactionsDB.NewTransactionsStorage(db)
+	counterpartiesStore := counterpartiesDB.NewCounterpartiesStorage(db)
 
 	usersService := users.NewUsersService(logger, usersStore, v, utils, pm)
 	authService := auth.NewAuthService(logger, utils, v, usersStore, tokensStore, tm, pm)
-	categoriesService := categories.NewCategoriesPGService(logger, categoriesStore, v, utils)
+	categoriesService := categories.NewCategoriesService(logger, categoriesStore, v, utils)
+	transactionsService := transactions.NewTransactionsService(logger, transactionsStore, v, utils)
+	counterpartiesService := counterparties.NewCounterpartiesService(logger, counterpartiesStore, v, utils)
 
 	// CORS
 	serv.Handle("OPTIONS /*", CorsMiddleware(http.HandlerFunc(CorsOptionHandlerFunc)))
@@ -93,11 +101,55 @@ func initRoutes(
 	)
 	serv.Handle(
 		"PUT /api/v1/categories/{categoryID}",
-		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(categoriesService.EditUserInfo))),
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(categoriesService.EditCategory))),
 	)
 	serv.Handle(
 		"DELETE /api/v1/categories/{categoryID}",
 		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(categoriesService.DeleteCategory))),
+	)
+
+	// Counterparties
+	serv.Handle(
+		"GET /api/v1/counterparties",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(counterpartiesService.GetCounterpartiesList))),
+	)
+	serv.Handle(
+		"GET /api/v1/counterparties/{counterpartyID}",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(counterpartiesService.GetCounterpartyByID))),
+	)
+	serv.Handle(
+		"POST /api/v1/counterparties",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(counterpartiesService.CreateCounterparty))),
+	)
+	serv.Handle(
+		"PUT /api/v1/counterparties/{counterpartyID}",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(counterpartiesService.EditCounterparty))),
+	)
+	serv.Handle(
+		"DELETE /api/v1/counterparties/{counterpartyID}",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(counterpartiesService.DeleteCounterparty))),
+	)
+
+	// Transactions
+	serv.Handle(
+		"GET /api/v1/transactions",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(transactionsService.GetTransactionsList))),
+	)
+	serv.Handle(
+		"GET /api/v1/transactions/{transactionID}",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(transactionsService.GetTransactionByID))),
+	)
+	serv.Handle(
+		"POST /api/v1/transactions",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(transactionsService.CreateTransaction))),
+	)
+	serv.Handle(
+		"PUT /api/v1/transactions/{transactionID}",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(transactionsService.EditTransaction))),
+	)
+	serv.Handle(
+		"DELETE /api/v1/transactions/{transactionID}",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(transactionsService.DeleteTransaction))),
 	)
 
 	return serv

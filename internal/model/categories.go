@@ -12,12 +12,11 @@ type Category struct {
 }
 
 type CreateCategoryBody struct {
-	UserID      int    `json:"userID"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `json:"name" validate:"required,min=2,max=1024"`
+	Description string `json:"description" validate:"max=1024"`
 }
 
 type EditCategoryBody struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `json:"name" validate:"required,min=2,max=1024"`
+	Description string `json:"description" validate:"max=1024"`
 }

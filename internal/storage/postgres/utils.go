@@ -42,6 +42,12 @@ func (pgu *PGUtils) CheckConstrainError(e error) (bool, error) {
 			return true, storage.ErrUsersEmptyPassword
 		case "categories_user_category_name":
 			return true, storage.ErrCategoryUniqueName
+		case "counterparties_user_category_name":
+			return true, storage.ErrCounterpartyUniqueName
+		case "transactions_type":
+			return true, storage.ErrTransactionType
+		case "transactions_amount":
+			return true, storage.ErrTransactionsAmountGTZ
 		default:
 			return false, e
 		}
