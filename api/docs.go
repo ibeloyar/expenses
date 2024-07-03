@@ -130,7 +130,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Получить список категорий (свои и общие)",
+                "description": "Получить категорию (по ID)",
                 "tags": [
                     "Categories"
                 ],
@@ -141,31 +141,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "maximum": 10,
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "positive int",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 25,
-                        "description": "positive int",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "maxLength": 256,
-                        "type": "string",
-                        "description": "any string",
-                        "name": "search",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -260,6 +235,249 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/counterparties": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получить список контрагентов",
+                "tags": [
+                    "Counterparties"
+                ],
+                "parameters": [
+                    {
+                        "maximum": 10,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "positive int",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 25,
+                        "description": "positive int",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 256,
+                        "type": "string",
+                        "description": "any string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Counterparty"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Создать контрагента для пользователя",
+                "tags": [
+                    "Counterparties"
+                ],
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateCounterpartyBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/counterparties/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получить контрагента (по ID)",
+                "tags": [
+                    "Counterparties"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Counterparty ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Counterparty"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Изменить информацию о контрагенте",
+                "tags": [
+                    "Counterparties"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Counterparty ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/model.EditCounterpartyBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Удалить контрагента",
+                "tags": [
+                    "Counterparties"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Counterparty ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -425,6 +643,249 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получить список транзакций",
+                "tags": [
+                    "Transactions"
+                ],
+                "parameters": [
+                    {
+                        "maximum": 10,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "positive int",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 25,
+                        "description": "positive int",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 256,
+                        "type": "string",
+                        "description": "any string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Transaction"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Создать транзакцию для пользователя",
+                "tags": [
+                    "Transactions"
+                ],
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateTransactionBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/transactions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получить транзакцию (по ID)",
+                "tags": [
+                    "Transactions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Transaction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Transaction"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Изменить информацию о контрагенте",
+                "tags": [
+                    "Transactions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Transactions ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/model.EditTransactionBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Удалить транзакцию",
+                "tags": [
+                    "Transactions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Transaction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/web.WebError"
                         }
@@ -736,17 +1197,102 @@ const docTemplate = `{
                 }
             }
         },
-        "model.CreateCategoryBody": {
+        "model.Counterparty": {
             "type": "object",
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
                 },
+                "updatedAt": {
+                    "type": "string"
+                },
                 "userID": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.CreateCategoryBody": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "minLength": 2
+                }
+            }
+        },
+        "model.CreateCounterpartyBody": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 2
+                }
+            }
+        },
+        "model.CreateTransactionBody": {
+            "type": "object",
+            "required": [
+                "amount",
+                "categoryID",
+                "counterpartyID",
+                "currency",
+                "date",
+                "type"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "categoryID": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "comment": {
+                    "type": "string",
+                    "maxLength": 2048
+                },
+                "counterpartyID": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "in",
+                        "out"
+                    ]
                 }
             }
         },
@@ -775,12 +1321,77 @@ const docTemplate = `{
         },
         "model.EditCategoryBody": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 1024
                 },
                 "name": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "minLength": 2
+                }
+            }
+        },
+        "model.EditCounterpartyBody": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 2
+                }
+            }
+        },
+        "model.EditTransactionBody": {
+            "type": "object",
+            "required": [
+                "amount",
+                "categoryID",
+                "counterpartyID",
+                "currency",
+                "date",
+                "type"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "categoryID": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "comment": {
+                    "type": "string",
+                    "maxLength": 2048
+                },
+                "counterpartyID": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "currency": {
                     "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "in",
+                        "out"
+                    ]
                 }
             }
         },
@@ -858,6 +1469,44 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 4
+                }
+            }
+        },
+        "model.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "categoryID": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "counterpartyID": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
                 }
             }
         },

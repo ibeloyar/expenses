@@ -12,4 +12,7 @@ var (
 	ErrUsersEmptyEmail             = errors.New("email is required")
 	ErrUsersEmptyPassword          = errors.New("password is required")
 	ErrCategoryUniqueName          = errors.New("category must have unique name")
+	ErrCounterpartyUniqueName      = errors.New("counterparty must have unique name")
+	ErrTransactionType             = errors.New("transaction type must been \"in\" or \"out\"")
+	ErrTransactionsAmountGTZ       = errors.New("transaction type must greater than zero")
 )

@@ -12,20 +12,20 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type CategoriesPGService struct {
+type CategoriesService struct {
 	logger    *slog.Logger
 	store     storage.CategoriesStore
 	validator *validator.Validate
 	utils     storage.ServiceUtils
 }
 
-func NewCategoriesPGService(
+func NewCategoriesService(
 	l *slog.Logger,
 	cs storage.CategoriesStore,
 	v *validator.Validate,
 	u storage.ServiceUtils,
-) *CategoriesPGService {
-	return &CategoriesPGService{
+) *CategoriesService {
+	return &CategoriesService{
 		logger:    l,
 		store:     cs,
 		validator: v,
@@ -44,7 +44,7 @@ func NewCategoriesPGService(
 // @Success 200 {object} []model.Category
 // @Failure 400 {object} web.WebError
 // @Failure 500 {object} web.WebError
-func (cs *CategoriesPGService) GetCategoriesList(w http.ResponseWriter, r *http.Request) {
+func (cs *CategoriesService) GetCategoriesList(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, cs.logger, "categories.GetCategoriesList")
 
 	tokenUserID := r.Context().Value("userID").(int)
@@ -74,16 +74,13 @@ func (cs *CategoriesPGService) GetCategoriesList(w http.ResponseWriter, r *http.
 // @Router /api/v1/categories/{id} [get]
 // @Tags Categories
 // @Param id path int true "Category ID"
-// @Param page query int false "positive int" minimum(1) maximum(10) default(1)
-// @Param limit query int false "positive int" minimum(1) maximum(100) default(25)
-// @Param search query string false "any string" maxlength(256)
-// @Description Получить список категорий (свои и общие)
+// @Description Получить категорию (по ID)
 // @Security BearerAuth
 // @Success 200 {object} model.Category
 // @Failure 400 {object} web.WebError
 // @Failure 404 {object} web.WebError
 // @Failure 500 {object} web.WebError
-func (cs *CategoriesPGService) GetCategoryByID(w http.ResponseWriter, r *http.Request) {
+func (cs *CategoriesService) GetCategoryByID(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, cs.logger, "categories.GetCategoryByID")
 
 	tokenUserID := r.Context().Value("userID").(int)
@@ -120,10 +117,12 @@ func (cs *CategoriesPGService) GetCategoryByID(w http.ResponseWriter, r *http.Re
 // @Success 201
 // @Failure 400 {object} web.WebError
 // @Failure 500 {object} web.WebError
-func (cs *CategoriesPGService) CreateCategory(w http.ResponseWriter, r *http.Request) {
+func (cs *CategoriesService) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, cs.logger, "categories.CreateCategory")
 
 	body := new(model.CreateCategoryBody)
+
+	tokenUserID := r.Context().Value("userID").(int)
 
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -139,7 +138,7 @@ func (cs *CategoriesPGService) CreateCategory(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = cs.store.CreateCategory(body)
+	err = cs.store.CreateCategory(tokenUserID, body)
 	if err != nil {
 		if isConstrain, e := cs.utils.CheckConstrainError(err); isConstrain {
 			web.WriteBadRequest(w, e)
@@ -152,7 +151,7 @@ func (cs *CategoriesPGService) CreateCategory(w http.ResponseWriter, r *http.Req
 	web.WriteCreated(w, nil)
 }
 
-// EditUserInfo
+// EditCategory
 // @Router /api/v1/categories/{id} [put]
 // @Tags Categories
 // @Param id path int true "Category ID"
@@ -163,8 +162,8 @@ func (cs *CategoriesPGService) CreateCategory(w http.ResponseWriter, r *http.Req
 // @Failure 400 {object} web.WebError
 // @Failure 404 {object} web.WebError
 // @Failure 500 {object} web.WebError
-func (cs *CategoriesPGService) EditUserInfo(w http.ResponseWriter, r *http.Request) {
-	defer web.PanicRecoverWithSlog(w, cs.logger, "categories.EditUserInfo")
+func (cs *CategoriesService) EditCategory(w http.ResponseWriter, r *http.Request) {
+	defer web.PanicRecoverWithSlog(w, cs.logger, "categories.EditCategory")
 
 	tokenUserID := r.Context().Value("userID").(int)
 
@@ -220,7 +219,7 @@ func (cs *CategoriesPGService) EditUserInfo(w http.ResponseWriter, r *http.Reque
 // @Failure 403 {object} web.WebError
 // @Failure 404 {object} web.WebError
 // @Failure 500 {object} web.WebError
-func (cs *CategoriesPGService) DeleteCategory(w http.ResponseWriter, r *http.Request) {
+func (cs *CategoriesService) DeleteCategory(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, cs.logger, "categories.DeleteCategory")
 
 	tokenUserID := r.Context().Value("userID").(int)

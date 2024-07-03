@@ -26,7 +26,23 @@ type TokensStore interface {
 type CategoriesStore interface {
 	GetAllUserCategories(userID, page, limit int, search string) ([]*model.Category, error)
 	GetCategoryByID(id, userID int) (*model.Category, error)
-	CreateCategory(data *model.CreateCategoryBody) error
+	CreateCategory(userID int, data *model.CreateCategoryBody) error
 	EditCategory(categoryID, userID int, data *model.EditCategoryBody) error
 	DeleteCategory(id, userID int) error
+}
+
+type CounterpartiesStore interface {
+	GetAllUserCounterparties(userID, page, limit int, search string) ([]*model.Counterparty, error)
+	GetCounterpartyByID(id, userID int) (*model.Counterparty, error)
+	CreateCounterparty(userID int, data *model.CreateCounterpartyBody) error
+	EditCounterparty(counterpartyID, userID int, data *model.EditCounterpartyBody) error
+	DeleteCounterparty(id, userID int) error
+}
+
+type TransactionsStore interface {
+	GetAllUserTransactions(userID, page, limit int, search string) ([]*model.Transaction, error)
+	GetTransactionByID(id, userID int) (*model.Transaction, error)
+	CreateTransaction(userID int, data *model.CreateTransactionBody) error
+	EditTransaction(transactionID, userID int, data *model.EditTransactionBody) error
+	DeleteTransaction(id, userID int) error
 }

@@ -30,7 +30,17 @@ func Run(cfg *config.Config) {
 	tm := tokens.New(cfg.Security.JWTSecret)
 	lgr.Info("tokens manager initialized")
 
+	// TODO: Зачем здесь возвращать err?
+	// Без Storage приложение не работоспособно
 	store, err := postgres.NewStorage(cfg.Storage)
+	if err != nil {
+		lgr.Error(err.Error())
+		os.Exit(1)
+	}
+
+	// TODO: Зачем здесь возвращать err?
+	// Без миграций приложение не работоспособно
+	err = store.MigrateSchema()
 	if err != nil {
 		lgr.Error(err.Error())
 		os.Exit(1)

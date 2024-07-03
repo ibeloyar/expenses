@@ -156,11 +156,11 @@ func PanicRecover(w http.ResponseWriter) {
 	}
 }
 
-// PanicRecoverWithSlog - sends a response with code 500,
+// PanicRecoverWithSlog - sends a response with code 500,SORT
 // handles the panic and writes it to the logs (*slog.Logger)
 func PanicRecoverWithSlog(w http.ResponseWriter, logger *slog.Logger, op string) {
 	if r := recover(); r != nil {
-		logger.Error("panic", slog.String("op", op))
+		logger.Error("panic", slog.String("op", op), slog.String("recover", r.(string)))
 		WriteServerError(w)
 		return
 	}

@@ -15,14 +15,75 @@ definitions:
       userID:
         type: integer
     type: object
-  model.CreateCategoryBody:
+  model.Counterparty:
     properties:
+      createdAt:
+        type: string
       description:
         type: string
+      id:
+        type: integer
       name:
+        type: string
+      updatedAt:
         type: string
       userID:
         type: integer
+    type: object
+  model.CreateCategoryBody:
+    properties:
+      description:
+        maxLength: 1024
+        type: string
+      name:
+        maxLength: 1024
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
+  model.CreateCounterpartyBody:
+    properties:
+      description:
+        maxLength: 1024
+        type: string
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
+  model.CreateTransactionBody:
+    properties:
+      amount:
+        minimum: 0
+        type: number
+      categoryID:
+        minimum: 1
+        type: integer
+      comment:
+        maxLength: 2048
+        type: string
+      counterpartyID:
+        minimum: 1
+        type: integer
+      currency:
+        type: string
+      date:
+        type: string
+      type:
+        enum:
+        - in
+        - out
+        type: string
+    required:
+    - amount
+    - categoryID
+    - counterpartyID
+    - currency
+    - date
+    - type
     type: object
   model.CreateUserBody:
     properties:
@@ -44,9 +105,57 @@ definitions:
   model.EditCategoryBody:
     properties:
       description:
+        maxLength: 1024
         type: string
       name:
+        maxLength: 1024
+        minLength: 2
         type: string
+    required:
+    - name
+    type: object
+  model.EditCounterpartyBody:
+    properties:
+      description:
+        maxLength: 1024
+        type: string
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
+  model.EditTransactionBody:
+    properties:
+      amount:
+        minimum: 0
+        type: number
+      categoryID:
+        minimum: 1
+        type: integer
+      comment:
+        maxLength: 2048
+        type: string
+      counterpartyID:
+        minimum: 1
+        type: integer
+      currency:
+        type: string
+      date:
+        type: string
+      type:
+        enum:
+        - in
+        - out
+        type: string
+    required:
+    - amount
+    - categoryID
+    - counterpartyID
+    - currency
+    - date
+    - type
     type: object
   model.EditUserBody:
     properties:
@@ -101,6 +210,31 @@ definitions:
     - email
     - login
     - password
+    type: object
+  model.Transaction:
+    properties:
+      amount:
+        type: number
+      categoryID:
+        type: integer
+      comment:
+        type: string
+      counterpartyID:
+        type: integer
+      createdAt:
+        type: string
+      currency:
+        type: string
+      date:
+        type: string
+      id:
+        type: integer
+      type:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
     type: object
   model.UserInfo:
     properties:
@@ -239,32 +373,13 @@ paths:
       tags:
       - Categories
     get:
-      description: Получить список категорий (свои и общие)
+      description: Получить категорию (по ID)
       parameters:
       - description: Category ID
         in: path
         name: id
         required: true
         type: integer
-      - default: 1
-        description: positive int
-        in: query
-        maximum: 10
-        minimum: 1
-        name: page
-        type: integer
-      - default: 25
-        description: positive int
-        in: query
-        maximum: 100
-        minimum: 1
-        name: limit
-        type: integer
-      - description: any string
-        in: query
-        maxLength: 256
-        name: search
-        type: string
       responses:
         "200":
           description: OK
@@ -318,6 +433,160 @@ paths:
       - BearerAuth: []
       tags:
       - Categories
+  /api/v1/counterparties:
+    get:
+      description: Получить список контрагентов
+      parameters:
+      - default: 1
+        description: positive int
+        in: query
+        maximum: 10
+        minimum: 1
+        name: page
+        type: integer
+      - default: 25
+        description: positive int
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: any string
+        in: query
+        maxLength: 256
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Counterparty'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Counterparties
+    post:
+      description: Создать контрагента для пользователя
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/model.CreateCounterpartyBody'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Counterparties
+  /api/v1/counterparties/{id}:
+    delete:
+      description: Удалить контрагента
+      parameters:
+      - description: Counterparty ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Counterparties
+    get:
+      description: Получить контрагента (по ID)
+      parameters:
+      - description: Counterparty ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Counterparty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Counterparties
+    put:
+      description: Изменить информацию о контрагенте
+      parameters:
+      - description: Counterparty ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/model.EditCounterpartyBody'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Counterparties
   /api/v1/login:
     post:
       description: Вход под учётной записью
@@ -410,6 +679,160 @@ paths:
             $ref: '#/definitions/web.WebError'
       tags:
       - Authentication
+  /api/v1/transactions:
+    get:
+      description: Получить список транзакций
+      parameters:
+      - default: 1
+        description: positive int
+        in: query
+        maximum: 10
+        minimum: 1
+        name: page
+        type: integer
+      - default: 25
+        description: positive int
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: any string
+        in: query
+        maxLength: 256
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Transaction'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transactions
+    post:
+      description: Создать транзакцию для пользователя
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/model.CreateTransactionBody'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transactions
+  /api/v1/transactions/{id}:
+    delete:
+      description: Удалить транзакцию
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transactions
+    get:
+      description: Получить транзакцию (по ID)
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transactions
+    put:
+      description: Изменить информацию о контрагенте
+      parameters:
+      - description: Transactions ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/model.EditTransactionBody'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transactions
   /api/v1/users:
     get:
       description: Получить список пользователей (только для админа)
