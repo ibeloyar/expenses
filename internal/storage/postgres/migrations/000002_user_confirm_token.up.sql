@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN confirm_token VARCHAR(255);
