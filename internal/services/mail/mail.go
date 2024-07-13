@@ -88,7 +88,7 @@ func (ms *MailService) ConfirmUserAccount(w http.ResponseWriter, r *http.Request
 	}
 
 	// TODO: Заменить на url главной страницы UI
-	web.RedirectTo("http://example.com/")
+	web.RedirectTo(w, r, "http://example.com/")
 }
 
 // SendConfirmMail - balyaevds.main@gmail.com

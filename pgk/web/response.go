@@ -56,8 +56,8 @@ func WriteNoContent(w http.ResponseWriter, data any) {
 }
 
 // RedirectTo redirect client to url
-func RedirectTo(url string) {
-	http.RedirectHandler(url, http.StatusMovedPermanently)
+func RedirectTo(w http.ResponseWriter, r *http.Request, url string) {
+	http.Redirect(w, r, url, http.StatusMovedPermanently)
 }
 
 // WriteUnauthorized send on client response with status code 401 and error text

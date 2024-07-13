@@ -159,7 +159,6 @@ func (s *UsersStorage) DeleteUser(id int) error {
 }
 
 func (s *UsersStorage) AddConfirmToken(id int, confirmToken string) error {
-	fmt.Println(confirmToken, id)
 	res, err := s.db.Conn.Exec(context.Background(), "UPDATE users SET confirm_token=$1 WHERE id = $2;",
 		confirmToken,
 		id,
