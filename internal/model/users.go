@@ -11,6 +11,7 @@ type User struct {
 	RoleID         int        `json:"roleID"`
 	CreatedAt      *time.Time `json:"createdAt"`
 	UpdatedAt      *time.Time `json:"updatedAt"`
+	ConfirmToken   *string    `json:"confirmToken"`
 }
 
 type UserInfo struct {

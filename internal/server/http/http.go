@@ -23,19 +23,18 @@ type HTTPServer struct {
 }
 
 func NewServer(
-	env string,
-	cfg config.HTTPSettings,
+	cfg *config.Config,
 	logger *slog.Logger,
 	db *postgres.PGStorage,
 	tm *tokens.TokensManager,
 	pm *password.PasswordManager,
 ) *HTTPServer {
-	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	addr := fmt.Sprintf("%s:%d", cfg.HTTPServer.Host, cfg.HTTPServer.Port)
 	r := http.NewServeMux()
 
-	handler := initRoutes(r, logger, db, tm, pm)
+	handler := initRoutes(cfg, r, logger, db, tm, pm)
 
-	if env != config.ProductionENV {
+	if cfg.ENV != config.ProductionENV {
 		handler.HandleFunc("GET /swagger/*", httpSwagger.Handler())
 	}
 
@@ -43,8 +42,8 @@ func NewServer(
 		server: &http.Server{
 			Addr:         addr,
 			Handler:      handler,
-			WriteTimeout: time.Duration(cfg.Timeout) * time.Second,
-			ReadTimeout:  time.Duration(cfg.IddleTimout) * time.Second,
+			WriteTimeout: time.Duration(cfg.HTTPServer.Timeout) * time.Second,
+			ReadTimeout:  time.Duration(cfg.HTTPServer.IddleTimout) * time.Second,
 		},
 		logger: logger,
 	}

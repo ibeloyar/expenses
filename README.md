@@ -26,4 +26,7 @@ Make
 make run
 make install-tools
 make swagger-gen
+make migrate-up
+make migrate-down
+make NAME="confirm_mail" migrate-create
 ```

@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/B-Dmitriy/expenses/internal/model"
@@ -51,6 +52,7 @@ func (s *UsersStorage) GetUsersList(page, limit int, search string) ([]*model.Us
 			&user.RoleID,
 			&user.CreatedAt,
 			&user.UpdatedAt,
+			&user.ConfirmToken,
 		)
 		if err != nil {
 			return nil, err
@@ -74,6 +76,7 @@ func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 		&user.RoleID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.ConfirmToken,
 	)
 	if err != nil {
 		if errors.As(err, &pgx.ErrNoRows) {
@@ -97,8 +100,10 @@ func (s *UsersStorage) GetUserByEmail(email string) (*model.User, error) {
 		&user.RoleID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.ConfirmToken,
 	)
 	if err != nil {
+		fmt.Println(err)
 		if errors.As(err, &pgx.ErrNoRows) {
 			return nil, storage.ErrNotFound
 		}

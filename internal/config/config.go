@@ -28,16 +28,24 @@ type HTTPSettings struct {
 	ShutdownTimeout int    `yaml:"shutdown_timeout"`
 }
 
+type SecuritySettings struct {
+	PassCost  int    `yaml:"pass_cost"`
+	JWTSecret string `yaml:"jwt_secret"`
+}
+
+type MailSettings struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	From     string `yaml:"from"`
+	Password string `yaml:"password"`
+}
+
 type Config struct {
 	ENV        string           `yaml:"env"`
 	HTTPServer HTTPSettings     `yaml:"http_server"`
 	Storage    StorageSettings  `yaml:"storage"`
 	Security   SecuritySettings `yaml:"security"`
-}
-
-type SecuritySettings struct {
-	PassCost  int    `yaml:"pass_cost"`
-	JWTSecret string `yaml:"jwt_secret"`
+	Mail       MailSettings     `yaml:"mail"`
 }
 
 func MustLoad() Config {

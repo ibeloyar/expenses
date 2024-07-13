@@ -15,3 +15,8 @@ http_server:
 security:
   pass_cost: 3
   jwt_secret: 'secret'
+mail:
+  host: smtp.gmail.com
+  port: 587
+  from: example@gmail.com
+  password: pass foor apps gogl
