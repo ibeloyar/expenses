@@ -29,7 +29,7 @@ func NewMailService(l *slog.Logger, ms *config.MailSettings, ss *config.HTTPSett
 		From:     ms.From,
 		Host:     ms.Host,
 		Addr:     fmt.Sprintf("%s:%s", ms.Host, ms.Port),
-		AddrApp:  fmt.Sprintf("http://%s:%s", ss.Host, ss.Port),
+		AddrApp:  fmt.Sprintf("http://%s:%d", ss.Host, ss.Port),
 		Password: ms.Password,
 		logger:   l,
 		us:       us,
@@ -50,7 +50,6 @@ func (ms *MailService) RequestConfirmMail(w http.ResponseWriter, r *http.Request
 		web.WriteServerErrorWithSlog(w, ms.logger, err)
 		return
 	}
-	fmt.Println(user)
 
 	confirmToken, err := uuid.NewUUID()
 	if err != nil {
@@ -58,28 +57,48 @@ func (ms *MailService) RequestConfirmMail(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	fmt.Println(confirmToken)
+	err = ms.us.AddConfirmToken(userID, confirmToken.String())
+	if err != nil {
+		web.WriteServerErrorWithSlog(w, ms.logger, err)
+		return
+	}
 
-	// Отправить email
-	//err := m.sendConfirmMail()
+	err = ms.sendConfirmMail(user.Email, confirmToken.String())
+	if err != nil {
+		web.WriteServerErrorWithSlog(w, ms.logger, err)
+		return
+	}
+
+	web.WriteOK(w, nil)
 }
 
 func (ms *MailService) ConfirmUserAccount(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, ms.logger, "mail.ConfirmUserAccount")
-	// Достать строку подверждения пользователя
-	// Достать с помощю токена пользователя
 
-	// Сравнить строки, если равны записать в пользователя подтверждённый email
+	query, err := web.ParseQueryParams(r, "token")
+	if err != nil {
+		web.WriteServerErrorWithSlog(w, ms.logger, err)
+		return
+	}
+
+	err = ms.us.ConfirmUserMail(query["token"])
+	if err != nil {
+		web.WriteServerErrorWithSlog(w, ms.logger, err)
+		return
+	}
+
+	// TODO: Заменить на url главной страницы UI
+	web.RedirectTo("http://example.com/")
 }
 
 // SendConfirmMail - balyaevds.main@gmail.com
-func (m *MailService) sendConfirmMail(to, confirmToken string) error {
+func (ms *MailService) sendConfirmMail(to, confirmToken string) error {
 	e := email.NewEmail()
-	e.From = fmt.Sprintf("Expenses <%s>", m.From)
+	e.From = fmt.Sprintf("Expenses <%s>", ms.From)
 	e.To = []string{to}
 	e.Subject = "Подтверждение аккаунта в приложении Expenses"
-	e.Text = []byte(fmt.Sprintf("Для подтверждения аккаунта, перейдите по ссылке: %s", confirmToken))
-	err := e.Send(m.Addr, smtp.PlainAuth("", m.From, m.Password, m.Host))
+	e.Text = []byte(fmt.Sprintf("Для подтверждения аккаунта, перейдите по ссылке: %s/api/v1/confirm:approve?token=%s", ms.AddrApp, confirmToken))
+	err := e.Send(ms.Addr, smtp.PlainAuth("", ms.From, ms.Password, ms.Host))
 	if err != nil {
 		return err
 	}

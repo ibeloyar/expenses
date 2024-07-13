@@ -157,12 +157,12 @@ func initRoutes(
 
 	// Mail
 	serv.Handle(
-		"POST /api/v1/confirm:send",
+		"GET /api/v1/confirm:send",
 		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(mailService.RequestConfirmMail))),
 	)
 	serv.Handle(
 		"GET /api/v1/confirm:approve",
-		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(mailService.ConfirmUserAccount))),
+		CorsMiddleware(http.HandlerFunc(mailService.ConfirmUserAccount)),
 	)
 
 	return serv
