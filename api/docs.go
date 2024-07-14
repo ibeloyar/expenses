@@ -267,11 +267,6 @@ const docTemplate = `{
         },
         "/api/v1/confirm:approve": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Переход на этот адрес подтверждает email (далее редиректит на главную приложения)",
                 "tags": [
                     "Mail"
@@ -288,6 +283,12 @@ const docTemplate = `{
                 "responses": {
                     "301": {
                         "description": "Moved Permanently"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",

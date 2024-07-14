@@ -85,8 +85,8 @@ func (ms *MailService) RequestConfirmMail(w http.ResponseWriter, r *http.Request
 // @Tags Mail
 // @Description Переход на этот адрес подтверждает email (далее редиректит на главную приложения)
 // @Param token query string false "any string" maxlength(256)
-// @Security BearerAuth
 // @Success 301
+// @Failure 404 {object} web.WebError
 // @Failure 500 {object} web.WebError
 func (ms *MailService) ConfirmUserAccount(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, ms.logger, "mail.ConfirmUserAccount")
@@ -99,12 +99,15 @@ func (ms *MailService) ConfirmUserAccount(w http.ResponseWriter, r *http.Request
 
 	err = ms.us.ConfirmUserMail(query["token"])
 	if err != nil {
+		if errors.Is(err, storage.ErrNotFound) {
+			web.WriteNotFound(w, storage.ErrNotFound)
+			return
+		}
 		web.WriteServerErrorWithSlog(w, ms.logger, err)
 		return
 	}
 
-	// TODO: Заменить на url главной страницы UI
-	web.RedirectTo(w, r, "http://example.com/")
+	web.RedirectTo(w, r, ms.AddrApp)
 }
 
 // sendConfirmMail - отправляет письмо с ссылкой подтверждения
