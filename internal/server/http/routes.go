@@ -1,6 +1,9 @@
 package http
 
 import (
+	"log/slog"
+	"net/http"
+
 	"github.com/B-Dmitriy/expenses/internal/config"
 	"github.com/B-Dmitriy/expenses/internal/services/auth"
 	"github.com/B-Dmitriy/expenses/internal/services/categories"
@@ -12,8 +15,6 @@ import (
 	"github.com/B-Dmitriy/expenses/pgk/password"
 	"github.com/B-Dmitriy/expenses/pgk/tokens"
 	"github.com/go-playground/validator/v10"
-	"log/slog"
-	"net/http"
 
 	categoriesDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/categories"
 	counterpartiesDB "github.com/B-Dmitriy/expenses/internal/storage/postgres/counterparties"

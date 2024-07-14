@@ -3,15 +3,15 @@ package mail
 import (
 	"errors"
 	"fmt"
-	"github.com/B-Dmitriy/expenses/internal/storage"
-	"github.com/B-Dmitriy/expenses/pgk/web"
-	"github.com/google/uuid"
-	"github.com/jordan-wright/email"
 	"log/slog"
 	"net/http"
 	"net/smtp"
 
 	"github.com/B-Dmitriy/expenses/internal/config"
+	"github.com/B-Dmitriy/expenses/internal/storage"
+	"github.com/B-Dmitriy/expenses/pgk/web"
+	"github.com/google/uuid"
+	"github.com/jordan-wright/email"
 )
 
 type MailService struct {
