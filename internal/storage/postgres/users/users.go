@@ -3,11 +3,11 @@ package users
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
 
 	"github.com/B-Dmitriy/expenses/internal/model"
 	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
+	"github.com/jackc/pgx/v5"
 )
 
 type UsersStorage struct {
@@ -51,6 +51,7 @@ func (s *UsersStorage) GetUsersList(page, limit int, search string) ([]*model.Us
 			&user.RoleID,
 			&user.CreatedAt,
 			&user.UpdatedAt,
+			&user.ConfirmToken,
 		)
 		if err != nil {
 			return nil, err
@@ -74,6 +75,7 @@ func (s *UsersStorage) GetUser(id int) (*model.UserInfo, error) {
 		&user.RoleID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.ConfirmToken,
 	)
 	if err != nil {
 		if errors.As(err, &pgx.ErrNoRows) {
@@ -97,6 +99,7 @@ func (s *UsersStorage) GetUserByEmail(email string) (*model.User, error) {
 		&user.RoleID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.ConfirmToken,
 	)
 	if err != nil {
 		if errors.As(err, &pgx.ErrNoRows) {
@@ -142,6 +145,39 @@ func (s *UsersStorage) EditUser(id int, user *model.EditUserBody) error {
 
 func (s *UsersStorage) DeleteUser(id int) error {
 	res, err := s.db.Conn.Exec(context.Background(), "DELETE FROM users WHERE id = $1;", id)
+	if err != nil {
+		return err
+	}
+
+	if res.RowsAffected() == 0 {
+		return storage.ErrNotFound
+	}
+
+	return nil
+}
+
+func (s *UsersStorage) AddConfirmToken(id int, confirmToken string) error {
+	res, err := s.db.Conn.Exec(context.Background(), "UPDATE users SET confirm_token=$1 WHERE id = $2;",
+		confirmToken,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+
+	if res.RowsAffected() == 0 {
+		return storage.ErrNotFound
+	}
+
+	return nil
+}
+
+func (s *UsersStorage) ConfirmUserMail(confirmToken string) error {
+	res, err := s.db.Conn.Exec(
+		context.Background(),
+		"UPDATE users SET email_confirmed=true WHERE confirm_token = $1;",
+		confirmToken,
+	)
 	if err != nil {
 		return err
 	}

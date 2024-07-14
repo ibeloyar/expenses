@@ -4,9 +4,11 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/B-Dmitriy/expenses/internal/config"
 	"github.com/B-Dmitriy/expenses/internal/services/auth"
 	"github.com/B-Dmitriy/expenses/internal/services/categories"
 	"github.com/B-Dmitriy/expenses/internal/services/counterparties"
+	"github.com/B-Dmitriy/expenses/internal/services/mail"
 	"github.com/B-Dmitriy/expenses/internal/services/transactions"
 	"github.com/B-Dmitriy/expenses/internal/services/users"
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
@@ -22,6 +24,7 @@ import (
 )
 
 func initRoutes(
+	cfg *config.Config,
 	serv *http.ServeMux,
 	logger *slog.Logger,
 	db *postgres.PGStorage,
@@ -38,6 +41,7 @@ func initRoutes(
 	counterpartiesStore := counterpartiesDB.NewCounterpartiesStorage(db)
 
 	usersService := users.NewUsersService(logger, usersStore, v, utils, pm)
+	mailService := mail.NewMailService(logger, &cfg.Mail, &cfg.HTTPServer, usersStore)
 	authService := auth.NewAuthService(logger, utils, v, usersStore, tokensStore, tm, pm)
 	categoriesService := categories.NewCategoriesService(logger, categoriesStore, v, utils)
 	transactionsService := transactions.NewTransactionsService(logger, transactionsStore, v, utils)
@@ -150,6 +154,16 @@ func initRoutes(
 	serv.Handle(
 		"DELETE /api/v1/transactions/{transactionID}",
 		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(transactionsService.DeleteTransaction))),
+	)
+
+	// Mail
+	serv.Handle(
+		"GET /api/v1/confirm:send",
+		CorsMiddleware(authService.AuthMiddleware(http.HandlerFunc(mailService.RequestConfirmMail))),
+	)
+	serv.Handle(
+		"GET /api/v1/confirm:approve",
+		CorsMiddleware(http.HandlerFunc(mailService.ConfirmUserAccount)),
 	)
 
 	return serv

@@ -28,3 +28,10 @@ migrate-down:
 	migrate \
 	-path $(DATABASE_MIGRATIONS_PATH) \
 	-database $(DATABASE_STRING) down
+
+.PHONY: migrate-create
+migrate-create:
+	migrate create \
+	-ext sql \
+	-dir $(DATABASE_MIGRATIONS_PATH) \
+	-seq $(NAME)

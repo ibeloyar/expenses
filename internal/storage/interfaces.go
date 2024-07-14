@@ -13,6 +13,9 @@ type UsersStore interface {
 	CreateUser(body *model.CreateUserBody) error
 	EditUser(id int, user *model.EditUserBody) error
 	DeleteUser(id int) error
+
+	AddConfirmToken(id int, confirmToken string) error
+	ConfirmUserMail(confirmToken string) error
 }
 
 type TokensStore interface {

@@ -433,6 +433,47 @@ paths:
       - BearerAuth: []
       tags:
       - Categories
+  /api/v1/confirm:approve:
+    get:
+      description: Переход на этот адрес подтверждает email (далее редиректит на главную
+        приложения)
+      parameters:
+      - description: any string
+        in: query
+        maxLength: 256
+        name: token
+        type: string
+      responses:
+        "301":
+          description: Moved Permanently
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      tags:
+      - Mail
+  /api/v1/confirm:send:
+    get:
+      description: Получить письмо с подтверждением на указанную при регистрации почту
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebError'
+      security:
+      - BearerAuth: []
+      tags:
+      - Mail
   /api/v1/counterparties:
     get:
       description: Получить список контрагентов
