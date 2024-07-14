@@ -3,12 +3,11 @@ package users
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/jackc/pgx/v5"
 
 	"github.com/B-Dmitriy/expenses/internal/model"
 	"github.com/B-Dmitriy/expenses/internal/storage"
 	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
+	"github.com/jackc/pgx/v5"
 )
 
 type UsersStorage struct {
@@ -103,7 +102,6 @@ func (s *UsersStorage) GetUserByEmail(email string) (*model.User, error) {
 		&user.ConfirmToken,
 	)
 	if err != nil {
-		fmt.Println(err)
 		if errors.As(err, &pgx.ErrNoRows) {
 			return nil, storage.ErrNotFound
 		}

@@ -265,6 +265,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/confirm:approve": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Переход на этот адрес подтверждает email (далее редиректит на главную приложения)",
+                "tags": [
+                    "Mail"
+                ],
+                "parameters": [
+                    {
+                        "maxLength": 256,
+                        "type": "string",
+                        "description": "any string",
+                        "name": "token",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "301": {
+                        "description": "Moved Permanently"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/confirm:send": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получить письмо с подтверждением на указанную при регистрации почту",
+                "tags": [
+                    "Mail"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/counterparties": {
             "get": {
                 "security": [

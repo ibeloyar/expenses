@@ -36,6 +36,14 @@ func NewMailService(l *slog.Logger, ms *config.MailSettings, ss *config.HTTPSett
 	}
 }
 
+// RequestConfirmMail
+// @Router /api/v1/confirm:send [get]
+// @Tags Mail
+// @Description Получить письмо с подтверждением на указанную при регистрации почту
+// @Security BearerAuth
+// @Success 200
+// @Failure 404 {object} web.WebError
+// @Failure 500 {object} web.WebError
 func (ms *MailService) RequestConfirmMail(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, ms.logger, "mail.RequestConfirmMail")
 
@@ -72,6 +80,14 @@ func (ms *MailService) RequestConfirmMail(w http.ResponseWriter, r *http.Request
 	web.WriteOK(w, nil)
 }
 
+// ConfirmUserAccount
+// @Router /api/v1/confirm:approve [get]
+// @Tags Mail
+// @Description Переход на этот адрес подтверждает email (далее редиректит на главную приложения)
+// @Param token query string false "any string" maxlength(256)
+// @Security BearerAuth
+// @Success 301
+// @Failure 500 {object} web.WebError
 func (ms *MailService) ConfirmUserAccount(w http.ResponseWriter, r *http.Request) {
 	defer web.PanicRecoverWithSlog(w, ms.logger, "mail.ConfirmUserAccount")
 
@@ -91,7 +107,7 @@ func (ms *MailService) ConfirmUserAccount(w http.ResponseWriter, r *http.Request
 	web.RedirectTo(w, r, "http://example.com/")
 }
 
-// SendConfirmMail - balyaevds.main@gmail.com
+// sendConfirmMail - отправляет письмо с ссылкой подтверждения
 func (ms *MailService) sendConfirmMail(to, confirmToken string) error {
 	e := email.NewEmail()
 	e.From = fmt.Sprintf("Expenses <%s>", ms.From)
