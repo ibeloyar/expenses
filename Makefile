@@ -13,6 +13,14 @@ install-tools:
 run:
 	go run $(MAIN_FILE)
 
+.PHONY: start
+start:
+	docker compose up -d
+
+.PHONY: stop
+stop:
+	docker compose down --rmi="all" -v
+
 .PHONY: swagger-gen
 swagger-gen:
 	$(GOPATH)/bin/swag init -o ./api -g $(MAIN_FILE)

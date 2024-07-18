@@ -1,32 +1,49 @@
-Getting started in Docker
-```shell
-docker network create expenses-net
+## Сервис мониторинга средств Expenses
+Данный сервис позволяет мониторить доходы и расходы пользователя.<br/>
+Это осуществляется за счёт ведения списка транзакций, вкючающих в себя категорию доходов/расходов,
+контрагента связанного с операцией и остальную информацию о движении денежных средств.<br/>
 
-# Postgres
-docker build -t expenses-pg:0.0.1 --file ./build/docker/postgres.Dockerfile .
-docker run -d --name expenses-pg \
-    --env-file ./config/docker/.env.pg \
-    -v expenses-pg:/var/lib/postgresql/data \
-    --network expenses-net \
-    -h expenses-pg \
-    -p 5432:5432 expenses-pg:0.0.1
+> [!WARNING]
+> В данный момент проект находится в стадии MVP. Ведётся выявление дальнейшего развития продукта.
+> (Необходимые фильтры, формат отчётов и статистики, возможность автоматизации сбора транзакций)
 
-docker exec -it expenses-pg /bin/bash
-psql -h expenses-pg -p 5432 -U username -W
+## Вклад в развитие
+Сервис реализован с помощью языка Golang с минимальным использованием сторонних библиотек.
+Изменения можно вносить создавая пулл-реквест, отметив ревьюером @B-Dmitriy.
 
-# App
-docker build -t expenses-app:0.0.1 --file ./build/docker/app.Dockerfile .
-docker run -d --name expenses-app \
-    --network expenses-net \
-    -p 7070:7070 expenses-app:0.0.1
-```
+### Настройка окружение для разработки
+Для локальной разработки необходимо ***иметь установленные программы***: <br/>
+[golang ^1.22.0](https://go.dev/)<br/>
+[make](https://www.gnu.org/software/make/)<br/>
+[docker (docker-compose)](https://www.docker.com/)<br/>
 
-Make
-```text
-make run
-make install-tools
-make swagger-gen
-make migrate-up
-make migrate-down
-make NAME="confirm_mail" migrate-create
-```
+Так же необходимо установить ***вспомогательные библиотеки***:<br/>
+[swag](github.com/swaggo/swag) - для генерации документации OpenAPI/Swagger<br/>
+[migrate](github.com/golang-migrate/migrate) - для работы с миграциями<br/>
+> Установить вспомогательные библиотеки можно с помощью команды `make install-tools`
+
+Так же необходимо прописать ***файлы конфигурации***:<br/>
+[main.yaml](./config/main.example.yaml) - основной файл конфигурации<br/>
+[.env.pg](./config/docker/.env.pg.example) - файл конфигурации для контейнера docker с PostgreSQL<br/>
+> Файлы конфигурации находятся в ***/config***
+
+### Для разработки фронтенда
+Вы можете запустить приложение с помощю команды `make start` или `docker compose up -d`.
+
+Далее запускайте фронтенд приложение будь то [expenses-ui](https://github.com/B-Dmitriy/expenses-ui),
+его форк или ваш собственный проект.
+
+### Для разработки бекэнд
+Вы можете запустить приложение с помощю команды `make start` или `docker compose up -d`, 
+далее остановить контейнер expenses-app и запустить go приложение с помощью команды `make run`.
+> Или вы можете отдельно [запустить контейнер с базой данных](./docs/containers.md).
+
+### Достуные make команды
+`make run` - запуск приложения на Golang (go run)<br/>
+`make start` - запуск приложения в docker<br/>
+`make stop` - остановка приложения в docker<br/>
+`make install-tools` - установка всех вспомогательных библиотек<br/>
+`make swagger-gen` - генерация документации swagger<br/>
+`make migrate-up` - запустить миграции<br/>
+`make migrate-down` - откатить миграции<br/>
+`make NAME="create_user_table" migrate-create` - создать миграцию create_user_table<br/>

@@ -4,7 +4,7 @@ storage:
   db_name: database
   db_user: username
   db_password: password
-  db_host: localhost
+  db_host: localhost # host for local or expenses-pg for docker
   db_port: 3301
 http_server:
   port: 8080

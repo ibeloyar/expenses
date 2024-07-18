@@ -1,0 +1,43 @@
+name: expenses
+services:
+  pg:
+    container_name: expenses-pg
+    build:
+      dockerfile: build/docker/postgres.Dockerfile
+    hostname: expenses-pg
+    ports:
+      - 5432:5432
+    networks:
+      - expenses-net
+    env_file: config/docker/.env.pg
+    volumes:
+      - expenses-pg:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  app:
+    container_name: expenses-app
+    build:
+      dockerfile: build/docker/app.Dockerfile
+    ports:
+      - 7070:7070
+    networks:
+      - expenses-net
+    links:
+      - pg:expenses-pg
+    depends_on:
+      pg:
+        condition: service_healthy
+volumes:
+  expenses-pg:
+    driver: local
+    name: expenses-pg
+networks:
+  expenses-net:
+    name: expenses-net
+    external: false
+    driver: bridge
+
