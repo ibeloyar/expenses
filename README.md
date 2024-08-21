@@ -42,6 +42,7 @@
 `make run` - запуск приложения на Golang (go run)<br/>
 `make start` - запуск приложения в docker<br/>
 `make stop` - остановка приложения в docker<br/>
+
 `make install-tools` - установка всех вспомогательных библиотек<br/>
 `make swagger-gen` - генерация документации swagger<br/>
 `make migrate-up` - запустить миграции<br/>
