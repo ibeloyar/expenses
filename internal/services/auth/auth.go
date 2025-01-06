@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/B-Dmitriy/expenses/internal/model"
-	"github.com/B-Dmitriy/expenses/internal/storage"
-	"github.com/B-Dmitriy/expenses/pgk/password"
-	"github.com/B-Dmitriy/expenses/pgk/tokens"
-	"github.com/B-Dmitriy/expenses/pgk/web"
 	"github.com/go-playground/validator/v10"
+	"github.com/ibeloyar/expenses/internal/model"
+	"github.com/ibeloyar/expenses/internal/storage"
+	"github.com/ibeloyar/expenses/pgk/password"
+	"github.com/ibeloyar/expenses/pgk/tokens"
+	"github.com/ibeloyar/expenses/pgk/web"
 )
 
 const (

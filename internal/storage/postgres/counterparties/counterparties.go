@@ -3,12 +3,13 @@ package counterparties
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"time"
 
-	"github.com/B-Dmitriy/expenses/internal/model"
-	"github.com/B-Dmitriy/expenses/internal/storage"
-	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
+	"github.com/jackc/pgx/v5"
+
+	"github.com/ibeloyar/expenses/internal/model"
+	"github.com/ibeloyar/expenses/internal/storage"
+	"github.com/ibeloyar/expenses/internal/storage/postgres"
 )
 
 type CounterpartiesStorage struct {

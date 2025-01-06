@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/B-Dmitriy/expenses/internal/app"
-	"github.com/B-Dmitriy/expenses/internal/config"
+	"github.com/ibeloyar/expenses/internal/app"
+	"github.com/ibeloyar/expenses/internal/config"
 )
 
 //	@title			Swagger Expenses API

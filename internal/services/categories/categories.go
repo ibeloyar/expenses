@@ -3,13 +3,14 @@ package categories
 import (
 	"encoding/json"
 	"errors"
-	"github.com/B-Dmitriy/expenses/internal/model"
 	"log/slog"
 	"net/http"
 
-	"github.com/B-Dmitriy/expenses/internal/storage"
-	"github.com/B-Dmitriy/expenses/pgk/web"
+	"github.com/ibeloyar/expenses/internal/model"
+
 	"github.com/go-playground/validator/v10"
+	"github.com/ibeloyar/expenses/internal/storage"
+	"github.com/ibeloyar/expenses/pgk/web"
 )
 
 type CategoriesService struct {

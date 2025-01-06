@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/B-Dmitriy/expenses/internal/config"
-	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
-	"github.com/B-Dmitriy/expenses/pgk/logger"
-	"github.com/B-Dmitriy/expenses/pgk/password"
-	"github.com/B-Dmitriy/expenses/pgk/tokens"
+	"github.com/ibeloyar/expenses/internal/config"
+	"github.com/ibeloyar/expenses/internal/storage/postgres"
+	"github.com/ibeloyar/expenses/pgk/logger"
+	"github.com/ibeloyar/expenses/pgk/password"
+	"github.com/ibeloyar/expenses/pgk/tokens"
 
-	server "github.com/B-Dmitriy/expenses/internal/server/http"
+	server "github.com/ibeloyar/expenses/internal/server/http"
 )
 
 func Run(cfg *config.Config) {
