@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/B-Dmitriy/expenses/pgk/web"
+	"github.com/ibeloyar/expenses/pgk/web"
 )
 
 func (as *AuthService) AuthMiddleware(next http.Handler) http.Handler {

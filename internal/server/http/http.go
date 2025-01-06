@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/B-Dmitriy/expenses/internal/config"
-	"github.com/B-Dmitriy/expenses/internal/storage/postgres"
-	"github.com/B-Dmitriy/expenses/pgk/password"
-	"github.com/B-Dmitriy/expenses/pgk/tokens"
+	"github.com/ibeloyar/expenses/internal/config"
+	"github.com/ibeloyar/expenses/internal/storage/postgres"
+	"github.com/ibeloyar/expenses/pgk/password"
+	"github.com/ibeloyar/expenses/pgk/tokens"
 
-	_ "github.com/B-Dmitriy/expenses/api"
+	_ "github.com/ibeloyar/expenses/api"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 

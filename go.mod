@@ -1,4 +1,4 @@
-module github.com/B-Dmitriy/expenses
+module github.com/ibeloyar/expenses
 
 go 1.22.2
 

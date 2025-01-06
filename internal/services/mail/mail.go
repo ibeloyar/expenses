@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"net/smtp"
 
-	"github.com/B-Dmitriy/expenses/internal/config"
-	"github.com/B-Dmitriy/expenses/internal/storage"
-	"github.com/B-Dmitriy/expenses/pgk/web"
 	"github.com/google/uuid"
+	"github.com/ibeloyar/expenses/internal/config"
+	"github.com/ibeloyar/expenses/internal/storage"
+	"github.com/ibeloyar/expenses/pgk/web"
 	"github.com/jordan-wright/email"
 )
 

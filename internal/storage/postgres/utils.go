@@ -3,7 +3,7 @@ package postgres
 import (
 	"errors"
 
-	"github.com/B-Dmitriy/expenses/internal/storage"
+	"github.com/ibeloyar/expenses/internal/storage"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
